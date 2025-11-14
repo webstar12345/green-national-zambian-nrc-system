@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}Summary Report - Zambian NRC System{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto fade-in-scroll">
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Summary Report</h1>
+            <p class="text-gray-600">Overview statistics and trends</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="?export=csv{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" 
+               class="px-4 py-2 bg-zambian-green text-white rounded-md hover:bg-green-700 transition-colors">
+                <i class="fas fa-download mr-2"></i>Export CSV
+            </a>
+            <button onclick="window.print()" 
+                    class="px-4 py-2 bg-zambian-orange text-white rounded-md hover:bg-orange-600 transition-colors">
+                <i class="fas fa-print mr-2"></i>Print
+            </button>
+        </div>
+    </div>
+
+    <!-- Date Filter -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <form method="get" class="flex flex-wrap gap-4 items-end">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">From Date</label>
+                <input type="date" name="date_from" value="{{ date_from }}" 
+                       class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">To Date</label>
+                <input type="date" name="date_to" value="{{ date_to }}" 
+                       class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green">
+            </div>
+            <button type="submit" class="px-6 py-2 bg-zambian-green text-white rounded-md hover:bg-green-700 transition-colors">
+                <i class="fas fa-filter mr-2"></i>Filter
+            </button>
+            <a href="{% url 'applications:summary_report' %}" class="px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                <i class="fas fa-times mr-2"></i>Clear
+            </a>
+        </form>
+    </div>
+
+    <!-- Statistics Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm">Total Applications</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ total_applications }}</p>
+                </div>
+                <div class="p-3 bg-zambian-green rounded-full">
+                    <i class="fas fa-file-alt text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm">Pending</p>
+                    <p class="text-3xl font-bold text-yellow-600">{{ pending_count }}</p>
+                </div>
+                <div class="p-3 bg-yellow-100 rounded-full">
+                    <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm">Approved</p>
+                    <p class="text-3xl font-bold text-green-600">{{ approved_count }}</p>
+                </div>
+                <div class="p-3 bg-green-100 rounded-full">
+                    <i class="fas fa-check text-green-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm">Rejected</p>
+                    <p class="text-3xl font-bold text-red-600">{{ rejected_count }}</p>
+                </div>
+                <div class="p-3 bg-red-100 rounded-full">
+                    <i class="fas fa-times text-red-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Types & Gender -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Application Types</h2>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-zambian-green rounded mr-3"></div>
+                        <span class="text-gray-700">New Applications</span>
+                    </div>
+                    <span class="text-2xl font-bold text-gray-900">{{ new_applications }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-zambian-orange rounded mr-3"></div>
+                        <span class="text-gray-700">Replacements</span>
+                    </div>
+                    <span class="text-2xl font-bold text-gray-900">{{ replacement_applications }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Gender Distribution</h2>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-male text-blue-600 text-xl mr-3"></i>
+                        <span class="text-gray-700">Male</span>
+                    </div>
+                    <span class="text-2xl font-bold text-gray-900">{{ male_count }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-female text-pink-600 text-xl mr-3"></i>
+                        <span class="text-gray-700">Female</span>
+                    </div>
+                    <span class="text-2xl font-bold text-gray-900">{{ female_count }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Districts -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Top 10 Districts</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rank</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">District</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Applications</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Percentage</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for district in top_districts %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ forloop.counter }}</td>
+                        <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ district.district }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ district.count }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            {% widthratio district.count total_applications 100 %}%
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">No data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Additional Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Recent Activity</h3>
+            <p class="text-3xl font-bold text-zambian-green">{{ recent_applications }}</p>
+            <p class="text-sm text-gray-600">Applications in last 30 days</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Total Users</h3>
+            <p class="text-3xl font-bold text-zambian-orange">{{ total_users }}</p>
+            <p class="text-sm text-gray-600">Registered users</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Active Users</h3>
+            <p class="text-3xl font-bold text-zambian-red">{{ active_users }}</p>
+            <p class="text-sm text-gray-600">Active accounts</p>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="flex justify-start">
+        <a href="{% url 'applications:admin_reports' %}" 
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Reports
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}User Details - {{ viewed_user.get_full_name }} - Zambian NRC System{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">User Details</h1>
+        <p class="text-gray-600">{{ viewed_user.get_full_name|default:viewed_user.username }}</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- User Information -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-user text-zambian-green mr-2"></i>User Information
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">First Name</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ viewed_user.first_name|default:"Not provided" }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Last Name</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ viewed_user.last_name|default:"Not provided" }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Username</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ viewed_user.username }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Email</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ viewed_user.email }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Phone Number</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ viewed_user.phone_number|default:"Not provided" }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">NRC Number</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ viewed_user.nrc_number|default:"Not assigned" }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Date Joined</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ viewed_user.date_joined|date:"F d, Y g:i A" }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Last Login</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ viewed_user.last_login|date:"F d, Y g:i A"|default:"Never" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Applications -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-file-alt text-zambian-green mr-2"></i>Applications ({{ user_applications.count }})
+                </h2>
+                {% if user_applications %}
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for app in user_applications %}
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 text-sm text-gray-900">#{{ app.id|stringformat:"05d" }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-900">{{ app.get_application_type_display }}</td>
+                                    <td class="px-4 py-3">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                   {% if app.status == 'approved' %}bg-green-100 text-green-800
+                                                   {% elif app.status == 'rejected' %}bg-red-100 text-red-800
+                                                   {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                            {{ app.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-900">{{ app.created_at|date:"M d, Y" }}</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <a href="{% url 'applications:admin_application_detail' app.pk %}" 
+                                           class="text-zambian-green hover:text-green-700">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-gray-500 text-center py-4">No applications submitted yet</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Status Card -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-info-circle text-zambian-green mr-2"></i>Status
+                </h2>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Account Status:</span>
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                   {% if viewed_user.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {% if viewed_user.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Role:</span>
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                   {% if viewed_user.is_superuser %}bg-zambian-red text-white
+                                   {% elif viewed_user.is_staff %}bg-zambian-orange text-white
+                                   {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if viewed_user.is_superuser %}Superuser
+                            {% elif viewed_user.is_staff %}Staff
+                            {% else %}User{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            {% if not viewed_user.is_superuser %}
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-cog text-zambian-green mr-2"></i>Actions
+                </h2>
+                <div class="space-y-3">
+                    <form method="post" class="w-full">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="toggle_staff">
+                        <button type="submit" 
+                                class="w-full px-4 py-2 {% if viewed_user.is_staff %}bg-gray-500{% else %}bg-zambian-orange{% endif %} text-white rounded-md hover:opacity-90 transition-colors">
+                            <i class="fas fa-user-shield mr-2"></i>
+                            {% if viewed_user.is_staff %}Remove Staff Status{% else %}Make Staff{% endif %}
+                        </button>
+                    </form>
+                    
+                    <form method="post" class="w-full">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="toggle_active">
+                        <button type="submit" 
+                                class="w-full px-4 py-2 {% if viewed_user.is_active %}bg-zambian-red{% else %}bg-zambian-green{% endif %} text-white rounded-md hover:opacity-90 transition-colors">
+                            <i class="fas fa-{% if viewed_user.is_active %}ban{% else %}check{% endif %} mr-2"></i>
+                            {% if viewed_user.is_active %}Deactivate Account{% else %}Activate Account{% endif %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Statistics -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-chart-bar text-zambian-green mr-2"></i>Statistics
+                </h2>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Total Applications:</span>
+                        <span class="text-lg font-semibold text-gray-900">{{ user_applications.count }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Approved:</span>
+                        <span class="text-lg font-semibold text-green-600">{{ user_applications|length }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Pending:</span>
+                        <span class="text-lg font-semibold text-yellow-600">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="mt-6 flex justify-start">
+        <a href="{% url 'applications:admin_users' %}" 
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Users
+        </a>
+    </div>
+</div>
+{% endblock %}

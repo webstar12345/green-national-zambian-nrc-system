@@ -1,0 +1,10 @@
+@echo off
+echo Starting Zambian NRC System...
+echo ==============================
+echo.
+echo Server will be available at: http://127.0.0.1:8000
+echo Admin panel at: http://127.0.0.1:8000/admin
+echo.
+echo Press Ctrl+C to stop the server
+echo.
+python manage.py runserver

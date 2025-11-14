@@ -1,0 +1,402 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Zambian NRC System{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-gradient-to-r from-zambian-green to-green-600 text-white py-16 rounded-lg mb-8">
+    <div class="text-center">
+        <h1 class="text-4xl font-bold mb-4">Welcome to Zambian NRC System</h1>
+        <p class="text-xl mb-8">Apply for your National Registration Card online - Fast, Secure, and Convenient</p>
+        <div class="flex justify-center space-x-4 flex-wrap gap-4">
+            <a href="{% url 'applications:apply' %}" class="bg-zambian-orange hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                <i class="fas fa-plus mr-2"></i>Apply for New NRC
+            </a>
+            <a href="{% url 'applications:apply_replacement' %}" class="bg-zambian-red hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                <i class="fas fa-sync-alt mr-2"></i>Apply for Replacement
+            </a>
+            <a href="{% url 'applications:my_applications' %}" class="bg-white text-zambian-green hover:bg-gray-100 px-6 py-3 rounded-lg font-semibold transition-colors">
+                <i class="fas fa-list mr-2"></i>View My Applications
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-zambian-green">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-green-100 text-zambian-green">
+                <i class="fas fa-id-card text-2xl"></i>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold text-gray-900">New NRC</h3>
+                <p class="text-gray-600">Apply for your first National Registration Card</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-zambian-orange">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-orange-100 text-zambian-orange">
+                <i class="fas fa-sync-alt text-2xl"></i>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold text-gray-900">Replacement</h3>
+                <p class="text-gray-600">Replace your lost or damaged NRC</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-zambian-red">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-red-100 text-zambian-red">
+                <i class="fas fa-clock text-2xl"></i>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold text-gray-900">Track Status</h3>
+                <p class="text-gray-600">Monitor your application progress</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Assistant Feature Banner -->
+<div class="bg-gradient-to-r from-zambian-green via-green-600 to-zambian-orange rounded-lg shadow-lg p-8 mb-8 text-white">
+    <div class="flex flex-col md:flex-row items-center justify-between">
+        <div class="flex items-center mb-4 md:mb-0">
+            <div class="bg-white bg-opacity-20 p-4 rounded-full mr-4">
+                <i class="fas fa-robot text-4xl"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold mb-1">Need Help? Try Our AI Assistant!</h2>
+                <p class="text-sm opacity-90">Get instant answers in English, Bemba, Nyanja, Tonga, or Lozi</p>
+            </div>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{% url 'applications:ai_demo' %}" class="bg-white text-zambian-green px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                <i class="fas fa-info-circle mr-2"></i>Learn More
+            </a>
+            <button onclick="document.getElementById('chatToggle').click()" class="bg-zambian-orange text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors">
+                <i class="fas fa-comments mr-2"></i>Start Chat
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Image Carousel: Manual vs Online NRC Application -->
+<div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+    <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">Why Go Digital?</h2>
+        <p class="text-gray-600">See the difference between manual and online NRC application</p>
+    </div>
+    
+    <div class="relative overflow-hidden rounded-xl shadow-2xl">
+        <!-- Carousel Container with Sliding Effect -->
+        <div id="nrcCarousel" class="relative h-[350px] md:h-[450px] bg-gray-900">
+            <!-- Slide 1: People in Long Queue (Manual Process) -->
+            <div class="carousel-slide active" style="transform: translateX(0%);">
+                <div class="relative h-full w-full">
+                    <!-- Background Image -->
+                    <img src="https://images.unsplash.com/photo-1528605105345-5344ea20e269?w=1200&h=600&fit=crop" 
+                         alt="People waiting in long queue" 
+                         class="absolute inset-0 w-full h-full object-cover">
+                    <!-- Dark Overlay -->
+                    <div class="absolute inset-0 bg-black bg-opacity-60"></div>
+                    <!-- Content Overlay -->
+                    <div class="relative h-full flex items-center justify-center p-4 md:p-6">
+                        <div class="text-center text-white max-w-2xl">
+                            <div class="bg-red-600 bg-opacity-90 rounded-lg p-4 md:p-6 shadow-2xl">
+                                <i class="fas fa-users text-4xl md:text-5xl mb-3"></i>
+                                <h3 class="text-2xl md:text-3xl font-bold mb-2">The Old Way</h3>
+                                <p class="text-base md:text-lg mb-4">Long queues, endless waiting, wasted time...</p>
+                                <div class="grid grid-cols-2 gap-3 text-left text-sm md:text-base">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-clock text-xl md:text-2xl mr-2"></i>
+                                        <span>Hours of waiting</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-sun text-xl md:text-2xl mr-2"></i>
+                                        <span>Weather exposure</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-tired text-xl md:text-2xl mr-2"></i>
+                                        <span>Physical exhaustion</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-money-bill text-xl md:text-2xl mr-2"></i>
+                                        <span>Travel costs</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Person Using Laptop/Phone (Online Process) -->
+            <div class="carousel-slide" style="transform: translateX(100%);">
+                <div class="relative h-full w-full">
+                    <!-- Background Image -->
+                    <img src="https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=1200&h=600&fit=crop" 
+                         alt="Person using laptop for online application" 
+                         class="absolute inset-0 w-full h-full object-cover">
+                    <!-- Light Overlay -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-zambian-green to-green-700 bg-opacity-80"></div>
+                    <!-- Content Overlay -->
+                    <div class="relative h-full flex items-center justify-center p-4 md:p-6">
+                        <div class="text-center text-white max-w-2xl">
+                            <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4 md:p-6 shadow-2xl border-2 border-white border-opacity-30">
+                                <i class="fas fa-laptop text-4xl md:text-5xl mb-3"></i>
+                                <h3 class="text-2xl md:text-3xl font-bold mb-2">The Modern Way</h3>
+                                <p class="text-base md:text-lg mb-4">Apply from anywhere, anytime - Fast & Easy!</p>
+                                <div class="grid grid-cols-2 gap-3 text-left text-sm md:text-base">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-home text-xl md:text-2xl mr-2"></i>
+                                        <span>From your home</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-bolt text-xl md:text-2xl mr-2"></i>
+                                        <span>10-15 minutes</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-shield-alt text-xl md:text-2xl mr-2"></i>
+                                        <span>Secure & safe</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-clock text-xl md:text-2xl mr-2"></i>
+                                        <span>24/7 available</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: Crowded Registration Office -->
+            <div class="carousel-slide" style="transform: translateX(100%);">
+                <div class="relative h-full w-full">
+                    <!-- Background Image -->
+                    <img src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&h=600&fit=crop" 
+                         alt="Crowded office with people waiting" 
+                         class="absolute inset-0 w-full h-full object-cover">
+                    <!-- Dark Overlay -->
+                    <div class="absolute inset-0 bg-black bg-opacity-70"></div>
+                    <!-- Content Overlay -->
+                    <div class="relative h-full flex items-center justify-center p-4 md:p-6">
+                        <div class="text-center text-white max-w-3xl">
+                            <div class="bg-gray-900 bg-opacity-90 rounded-lg p-4 md:p-6 shadow-2xl">
+                                <h3 class="text-2xl md:text-3xl font-bold mb-4">Manual Process Challenges</h3>
+                                <div class="grid md:grid-cols-3 gap-3 md:gap-4">
+                                    <div class="bg-red-600 bg-opacity-50 rounded-lg p-3 md:p-4">
+                                        <i class="fas fa-people-line text-3xl md:text-4xl mb-2"></i>
+                                        <p class="text-sm md:text-base font-semibold">Overcrowded Offices</p>
+                                    </div>
+                                    <div class="bg-red-600 bg-opacity-50 rounded-lg p-3 md:p-4">
+                                        <i class="fas fa-hourglass-half text-3xl md:text-4xl mb-2"></i>
+                                        <p class="text-sm md:text-base font-semibold">3-5 Hours Wait</p>
+                                    </div>
+                                    <div class="bg-red-600 bg-opacity-50 rounded-lg p-3 md:p-4">
+                                        <i class="fas fa-calendar-times text-3xl md:text-4xl mb-2"></i>
+                                        <p class="text-sm md:text-base font-semibold">Time Off Work</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: Happy Person with Phone/Laptop -->
+            <div class="carousel-slide" style="transform: translateX(100%);">
+                <div class="relative h-full w-full">
+                    <!-- Background Image -->
+                    <img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?w=1200&h=600&fit=crop" 
+                         alt="Happy person using smartphone" 
+                         class="absolute inset-0 w-full h-full object-cover">
+                    <!-- Gradient Overlay -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-zambian-orange to-orange-700 bg-opacity-85"></div>
+                    <!-- Content Overlay -->
+                    <div class="relative h-full flex items-center justify-center p-4 md:p-6">
+                        <div class="text-center text-white max-w-3xl">
+                            <i class="fas fa-trophy text-5xl md:text-6xl mb-3 opacity-90"></i>
+                            <h3 class="text-2xl md:text-3xl font-bold mb-2">Join 10,000+ Satisfied Users!</h3>
+                            <p class="text-base md:text-lg mb-4">Experience the convenience of online NRC application</p>
+                            <div class="grid grid-cols-3 gap-3 md:gap-4 mb-4">
+                                <div class="bg-white bg-opacity-20 rounded-lg p-3 md:p-4">
+                                    <p class="text-2xl md:text-3xl font-bold mb-1">10K+</p>
+                                    <p class="text-xs md:text-sm">Applications</p>
+                                </div>
+                                <div class="bg-white bg-opacity-20 rounded-lg p-3 md:p-4">
+                                    <p class="text-2xl md:text-3xl font-bold mb-1">95%</p>
+                                    <p class="text-xs md:text-sm">Satisfaction</p>
+                                </div>
+                                <div class="bg-white bg-opacity-20 rounded-lg p-3 md:p-4">
+                                    <p class="text-2xl md:text-3xl font-bold mb-1">24/7</p>
+                                    <p class="text-xs md:text-sm">Available</p>
+                                </div>
+                            </div>
+                            <a href="{% url 'applications:apply' %}" class="inline-block bg-white text-zambian-orange px-6 md:px-8 py-2 md:py-3 rounded-lg font-bold text-base md:text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-2xl">
+                                Start Application <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carousel Controls -->
+        <button onclick="previousSlide()" class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-75 hover:bg-opacity-100 text-gray-800 rounded-full p-3 shadow-lg transition-all">
+            <i class="fas fa-chevron-left text-xl"></i>
+        </button>
+        <button onclick="nextSlide()" class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-75 hover:bg-opacity-100 text-gray-800 rounded-full p-3 shadow-lg transition-all">
+            <i class="fas fa-chevron-right text-xl"></i>
+        </button>
+
+        <!-- Carousel Indicators -->
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            <button onclick="goToSlide(0)" class="carousel-indicator w-3 h-3 rounded-full bg-white opacity-50 hover:opacity-100 transition-opacity"></button>
+            <button onclick="goToSlide(1)" class="carousel-indicator w-3 h-3 rounded-full bg-white opacity-50 hover:opacity-100 transition-opacity"></button>
+            <button onclick="goToSlide(2)" class="carousel-indicator w-3 h-3 rounded-full bg-white opacity-50 hover:opacity-100 transition-opacity"></button>
+            <button onclick="goToSlide(3)" class="carousel-indicator w-3 h-3 rounded-full bg-white opacity-50 hover:opacity-100 transition-opacity"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Applications -->
+{% if user_applications %}
+<div class="bg-white rounded-lg shadow-md p-6 mb-8">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Your Recent Applications</h2>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Applied</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for application in user_applications %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <i class="fas fa-{% if application.application_type == 'new' %}id-card{% else %}sync-alt{% endif %} text-zambian-green mr-2"></i>
+                            <span class="text-sm font-medium text-gray-900">{{ application.get_application_type_display }}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                   {% if application.status == 'approved' %}bg-green-100 text-green-800
+                                   {% elif application.status == 'rejected' %}bg-red-100 text-red-800
+                                   {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {{ application.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ application.created_at|date:"M d, Y" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="{% url 'applications:application_detail' application.pk %}" 
+                           class="text-zambian-green hover:text-green-700">View Details</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-4">
+        <a href="{% url 'applications:my_applications' %}" 
+           class="text-zambian-green hover:text-green-700 font-medium">
+            View all applications →
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- How It Works -->
+<div class="bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">How It Works</h2>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-zambian-green rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-white text-2xl font-bold">1</span>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Create Account</h3>
+            <p class="text-gray-600">Sign up with your personal information</p>
+        </div>
+        
+        <div class="text-center">
+            <div class="w-16 h-16 bg-zambian-orange rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-white text-2xl font-bold">2</span>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Fill Application</h3>
+            <p class="text-gray-600">Complete the NRC application form</p>
+        </div>
+        
+        <div class="text-center">
+            <div class="w-16 h-16 bg-zambian-red rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-white text-2xl font-bold">3</span>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Upload Documents</h3>
+            <p class="text-gray-600">Submit required documents (PDF format)</p>
+        </div>
+        
+        <div class="text-center">
+            <div class="w-16 h-16 bg-zambian-black rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-white text-2xl font-bold">4</span>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Get Approved</h3>
+            <p class="text-gray-600">Wait for admin approval and collect your NRC</p>
+        </div>
+    </div>
+</div>
+
+<!-- Required Documents -->
+<div class="bg-gray-50 rounded-lg p-6 mt-8">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Required Documents</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            <h3 class="text-lg font-semibold text-zambian-green mb-3">For New NRC Application:</h3>
+            <ul class="space-y-2">
+                <li class="flex items-center">
+                    <i class="fas fa-check text-zambian-green mr-2"></i>
+                    <span>Birth Certificate (PDF)</span>
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check text-zambian-green mr-2"></i>
+                    <span>Under Five Card (PDF)</span>
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check text-zambian-green mr-2"></i>
+                    <span>Passport-size Photo (Optional)</span>
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check text-zambian-green mr-2"></i>
+                    <span>Personal and Parents' Full Names & Information</span>
+                </li>
+            </ul>
+        </div>
+        
+        <div>
+            <h3 class="text-lg font-semibold text-zambian-orange mb-3">For NRC Replacement:</h3>
+            <ul class="space-y-2">
+                <li class="flex items-center">
+                    <i class="fas fa-check text-zambian-orange mr-2"></i>
+                    <span>Old/Damaged NRC (PDF)</span>
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check text-zambian-orange mr-2"></i>
+                    <span>Birth Certificate (PDF)</span>
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check text-zambian-orange mr-2"></i>
+                    <span>Under Five Card (PDF)</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
