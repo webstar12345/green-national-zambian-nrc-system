@@ -3,8 +3,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{% block title %}Zambian National Registration Card System{% endblock %}</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Official Zambian National Registration Card Application System - Apply for new NRC or replacement online">
+    <meta name="theme-color" content="#00A651">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NRC Zambia">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="{% static 'images/icons/icon-152x152.png' %}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{% static 'images/icons/icon-152x152.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/icons/icon-192x192.png' %}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/icons/icon-72x72.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/icons/icon-72x72.png' %}">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -24,6 +45,7 @@
     <link href="{% static 'css/animations.css' %}" rel="stylesheet">
     <link href="{% static 'css/chat-widget.css' %}" rel="stylesheet">
     <link href="{% static 'css/mobile-responsive.css' %}" rel="stylesheet">
+    <link href="{% static 'css/pwa-styles.css' %}" rel="stylesheet">
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Navigation -->
@@ -274,6 +296,9 @@
         <link href="{% static 'css/chat-widget-voice.css' %}" rel="stylesheet">
         <script src="{% static 'js/chat-widget-voice.js' %}"></script>
     {% endif %}
+    
+    <!-- PWA Installation Script -->
+    <script src="{% static 'js/pwa-install.js' %}"></script>
 </body>
 </html>
 
