@@ -23,68 +23,77 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="{% static 'css/animations.css' %}" rel="stylesheet">
     <link href="{% static 'css/chat-widget.css' %}" rel="stylesheet">
+    <link href="{% static 'css/mobile-responsive.css' %}" rel="stylesheet">
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Navigation -->
     <nav class="bg-zambian-green shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
+                <!-- Logo -->
                 <div class="flex items-center">
                     <a href="{% url 'applications:home' %}" class="flex items-center">
-                        <i class="fas fa-id-card text-white text-2xl mr-3"></i>
-                        <span class="text-white text-xl font-bold">Zambian NRC System</span>
+                        <i class="fas fa-id-card text-white text-2xl mr-2 sm:mr-3"></i>
+                        <span class="text-white text-lg sm:text-xl font-bold hidden sm:inline">ZED NRC SYSTEM</span>
+                        <span class="text-white text-lg font-bold sm:hidden">NRC</span>
                     </a>
                 </div>
                 
-                <div class="flex items-center space-x-4">
+                <!-- Mobile Menu Button -->
+                <div class="flex items-center md:hidden">
+                    <button id="mobile-menu-button" class="text-white hover:text-zambian-orange focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-4 desktop-menu">
                     {% if user.is_authenticated %}
-                        <div class="flex items-center space-x-4">
-                            <a href="{% url 'applications:home' %}" class="text-white hover:text-zambian-orange transition-colors">
-                                <i class="fas fa-home mr-1"></i> Home
-                            </a>
-                            <div class="relative group">
-                                <button class="text-white hover:text-zambian-orange transition-colors flex items-center">
-                                    <i class="fas fa-plus mr-1"></i> Apply
-                                    <i class="fas fa-chevron-down ml-1"></i>
-                                </button>
-                                <div class="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                                    <a href="{% url 'applications:apply' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        <i class="fas fa-id-card mr-2 text-zambian-green"></i> New NRC
-                                    </a>
-                                    <a href="{% url 'applications:apply_replacement' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        <i class="fas fa-sync-alt mr-2 text-zambian-red"></i> Replacement
-                                    </a>
-                                </div>
-                            </div>
-                            <a href="{% url 'applications:my_applications' %}" class="text-white hover:text-zambian-orange transition-colors">
-                                <i class="fas fa-list mr-1"></i> My Applications
-                            </a>
-                            {% if user.is_staff %}
-                                <a href="{% url 'applications:admin_dashboard' %}" class="text-white hover:text-zambian-orange transition-colors">
-                                    <i class="fas fa-tachometer-alt mr-1"></i> Admin
+                        <a href="{% url 'applications:home' %}" class="text-white hover:text-zambian-orange transition-colors">
+                            <i class="fas fa-home mr-1"></i> Home
+                        </a>
+                        <div class="relative group">
+                            <button class="text-white hover:text-zambian-orange transition-colors flex items-center">
+                                <i class="fas fa-plus mr-1"></i> Apply
+                                <i class="fas fa-chevron-down ml-1"></i>
+                            </button>
+                            <div class="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                                <a href="{% url 'applications:apply' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-id-card mr-2 text-zambian-green"></i> New NRC
                                 </a>
-                            {% endif %}
-                            <div class="relative group">
-                                <button class="text-white hover:text-zambian-orange transition-colors flex items-center">
-                                    {% if user.profile_image %}
-                                        <img src="{{ user.profile_image.url }}" alt="{{ user.get_full_name }}" 
-                                             class="w-8 h-8 rounded-full object-cover border-2 border-white mr-2">
-                                    {% else %}
-                                        <div class="w-8 h-8 rounded-full bg-zambian-orange flex items-center justify-center text-white font-semibold mr-2">
-                                            {{ user.get_initials }}
-                                        </div>
-                                    {% endif %}
-                                    {{ user.get_full_name|default:user.username }}
-                                    <i class="fas fa-chevron-down ml-1"></i>
-                                </button>
-                                <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                                    <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        <i class="fas fa-user mr-2"></i> My Profile
-                                    </a>
-                                    <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                                    </a>
-                                </div>
+                                <a href="{% url 'applications:apply_replacement' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-sync-alt mr-2 text-zambian-red"></i> Replacement
+                                </a>
+                            </div>
+                        </div>
+                        <a href="{% url 'applications:my_applications' %}" class="text-white hover:text-zambian-orange transition-colors">
+                            <i class="fas fa-list mr-1"></i> My Applications
+                        </a>
+                        {% if user.is_staff %}
+                            <a href="{% url 'applications:admin_dashboard' %}" class="text-white hover:text-zambian-orange transition-colors">
+                                <i class="fas fa-tachometer-alt mr-1"></i> Admin
+                            </a>
+                        {% endif %}
+                        <div class="relative group">
+                            <button class="text-white hover:text-zambian-orange transition-colors flex items-center">
+                                {% if user.profile_image %}
+                                    <img src="{{ user.profile_image.url }}" alt="{{ user.get_full_name }}" 
+                                         class="w-8 h-8 rounded-full object-cover border-2 border-white mr-2">
+                                {% else %}
+                                    <div class="w-8 h-8 rounded-full bg-zambian-orange flex items-center justify-center text-white font-semibold mr-2">
+                                        {{ user.get_initials }}
+                                    </div>
+                                {% endif %}
+                                <span class="hidden lg:inline">{{ user.get_full_name|default:user.username }}</span>
+                                <i class="fas fa-chevron-down ml-1"></i>
+                            </button>
+                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                                <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-user mr-2"></i> My Profile
+                                </a>
+                                <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                                </a>
                             </div>
                         </div>
                     {% else %}
@@ -96,6 +105,46 @@
                         </a>
                     {% endif %}
                 </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="md:hidden hidden pb-4">
+                {% if user.is_authenticated %}
+                    <div class="flex flex-col space-y-2">
+                        <a href="{% url 'applications:home' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md">
+                            <i class="fas fa-home mr-2"></i> Home
+                        </a>
+                        <a href="{% url 'applications:apply' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md">
+                            <i class="fas fa-id-card mr-2"></i> New NRC
+                        </a>
+                        <a href="{% url 'applications:apply_replacement' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md">
+                            <i class="fas fa-sync-alt mr-2"></i> Replacement
+                        </a>
+                        <a href="{% url 'applications:my_applications' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md">
+                            <i class="fas fa-list mr-2"></i> My Applications
+                        </a>
+                        {% if user.is_staff %}
+                            <a href="{% url 'applications:admin_dashboard' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md">
+                                <i class="fas fa-tachometer-alt mr-2"></i> Admin Dashboard
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'accounts:profile' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md">
+                            <i class="fas fa-user mr-2"></i> My Profile
+                        </a>
+                        <a href="{% url 'accounts:logout' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="flex flex-col space-y-2">
+                        <a href="{% url 'accounts:login' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md">
+                            <i class="fas fa-sign-in-alt mr-2"></i> Login
+                        </a>
+                        <a href="{% url 'accounts:signup' %}" class="bg-zambian-orange text-white px-3 py-2 rounded-md hover:bg-orange-600">
+                            <i class="fas fa-user-plus mr-2"></i> Sign Up
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </nav>
@@ -120,27 +169,27 @@
     <!-- Footer -->
     <footer class="bg-zambian-black text-white mt-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
                 <div>
                     <h3 class="text-lg font-semibold mb-4">Zambian NRC System</h3>
-                    <p class="text-gray-300">Official online platform for Zambian National Registration Card applications and replacements.</p>
+                    <p class="text-gray-300 text-sm">Official online platform for Zambian National Registration Card applications and replacements.</p>
                 </div>
                 <div>
                     <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
                     <ul class="space-y-2">
-                        <li><a href="{% url 'applications:home' %}" class="text-gray-300 hover:text-zambian-orange transition-colors">Home</a></li>
-                        <li><a href="{% url 'applications:apply' %}" class="text-gray-300 hover:text-zambian-orange transition-colors">Apply for NRC</a></li>
-                        <li><a href="{% url 'applications:my_applications' %}" class="text-gray-300 hover:text-zambian-orange transition-colors">My Applications</a></li>
+                        <li><a href="{% url 'applications:home' %}" class="text-gray-300 hover:text-zambian-orange transition-colors text-sm">Home</a></li>
+                        <li><a href="{% url 'applications:apply' %}" class="text-gray-300 hover:text-zambian-orange transition-colors text-sm">Apply for NRC</a></li>
+                        <li><a href="{% url 'applications:my_applications' %}" class="text-gray-300 hover:text-zambian-orange transition-colors text-sm">My Applications</a></li>
                     </ul>
                 </div>
                 <div>
                     <h3 class="text-lg font-semibold mb-4">Contact</h3>
-                    <p class="text-gray-300">Ministry of Home Affairs</p>
-                    <p class="text-gray-300">Lusaka, Zambia</p>
+                    <p class="text-gray-300 text-sm">Ministry of Home Affairs</p>
+                    <p class="text-gray-300 text-sm">Lusaka, Zambia</p>
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center">
-                <p class="text-gray-300">&copy; 2024 Republic of Zambia. All rights reserved.</p>
+                <p class="text-gray-300 text-sm">&copy; 2024 Republic of Zambia. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -157,6 +206,40 @@
                 }, 500);
             });
         }, 5000);
+        
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                    mobileMenuButton.classList.toggle('active');
+                    
+                    const icon = mobileMenuButton.querySelector('i');
+                    if (mobileMenu.classList.contains('hidden')) {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    } else {
+                        icon.classList.remove('fa-bars');
+                        icon.classList.add('fa-times');
+                    }
+                });
+                
+                // Close menu when clicking a link
+                const menuLinks = mobileMenu.querySelectorAll('a');
+                menuLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        mobileMenu.classList.add('hidden');
+                        mobileMenuButton.classList.remove('active');
+                        const icon = mobileMenuButton.querySelector('i');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    });
+                });
+            }
+        });
     </script>
     
     <!-- Animation Scripts -->
@@ -168,3 +251,54 @@
     {% endif %}
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
