@@ -25,8 +25,7 @@ class Command(BaseCommand):
             first_name='System',
             last_name='Administrator',
             nrc_number='000000/00/0',
-            phone_number='+260000000000',
-            date_of_birth='1990-01-01'
+            phone_number='+260000000000'
         )
         
         self.stdout.write(self.style.SUCCESS(f'Successfully created admin user: {admin_username}'))
