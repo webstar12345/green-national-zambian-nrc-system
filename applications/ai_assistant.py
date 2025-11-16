@@ -161,6 +161,10 @@ Ku tsamaya mu System:
     def send_message(self, message):
         """Send message and get response"""
         try:
+            # Check if API key is configured
+            if not api_key:
+                return self.get_fallback_response(message)
+            
             if not self.chat:
                 self.initialize_chat()
             
@@ -171,11 +175,8 @@ Ku tsamaya mu System:
                 'language': self.language
             }
         except Exception as e:
-            return {
-                'success': False,
-                'message': f'Error: {str(e)}',
-                'language': self.language
-            }
+            # Fallback to predefined responses if API fails
+            return self.get_fallback_response(message)
     
     def change_language(self, new_language):
         """Change assistant language"""
@@ -184,6 +185,52 @@ Ku tsamaya mu System:
             self.initialize_chat()
             return True
         return False
+    
+    def get_fallback_response(self, message):
+        """Provide fallback responses when API is not available"""
+        message_lower = message.lower()
+        
+        # Define responses for common questions
+        responses = {
+            'en': {
+                'apply': "To apply for a new NRC:\n1. Click 'Apply' in the menu\n2. Choose 'New NRC Application'\n3. Fill in your personal details\n4. Upload required documents (birth certificate, parent's NRC, photo, proof of residence)\n5. Submit your application\n\nProcessing takes 14-30 days.",
+                'documents': "Required documents:\n• Birth certificate\n• Parent/Guardian NRC copies\n• Passport-sized photo\n• Proof of residence\n• You must be 16 years or older",
+                'time': "Application processing typically takes 14-30 days from submission. You can track your application status in 'My Applications'.",
+                'replace': "To replace a lost/damaged NRC:\n1. Click 'Apply' → 'Replacement'\n2. Provide police report (if lost/stolen)\n3. Fill in details and upload documents\n4. Submit application\n\nYou'll receive your replacement within 14-30 days.",
+                'track': "To track your application:\n1. Go to 'My Applications' in the menu\n2. View all your submitted applications\n3. Check the status (Pending, Under Review, Approved, Rejected)\n4. Download your NRC card when approved",
+                'default': "I'm here to help with NRC applications! You can ask me about:\n• How to apply for a new NRC\n• Required documents\n• Processing time\n• Replacing a lost NRC\n• Tracking your application\n\nWhat would you like to know?"
+            },
+            'bem': {
+                'apply': "Ukwapply sha NRC impya:\n1. Pindani 'Apply' mu menu\n2. Saleni 'New NRC Application'\n3. Lembapo details yenu\n4. Upload documents (birth certificate, NRC sha bafikala, photo, proof of residence)\n5. Submit application\n\nProcessing itola amasiku 14-30.",
+                'documents': "Documents ishakufwaikwa:\n• Birth certificate\n• Copies sha NRC sha bafikala\n• Passport photo\n• Proof of residence\n• Imyaka 16 nangu ukupitila",
+                'time': "Processing ya application itola amasiku 14-30. Mwingalanga status mu 'My Applications'.",
+                'replace': "Ukureplace NRC ishalafwile:\n1. Pindani 'Apply' → 'Replacement'\n2. Leteni police report\n3. Lembapo details\n4. Submit application",
+                'track': "Ukulanga application:\n1. Yani ku 'My Applications'\n2. Moneni applications yonse\n3. Chekeni status\n4. Download NRC card nga yavuminwa",
+                'default': "Ndefwaya ukubafwila na NRC applications! Mwingabushapo:\n• Ukwapply sha NRC impya\n• Documents ishakufwaikwa\n• Processing time\n• Ukureplace NRC\n• Ukulanga application"
+            }
+        }
+        
+        lang_responses = responses.get(self.language, responses['en'])
+        
+        # Match keywords to responses
+        if any(word in message_lower for word in ['apply', 'application', 'new', 'first']):
+            response_text = lang_responses['apply']
+        elif any(word in message_lower for word in ['document', 'need', 'require', 'what']):
+            response_text = lang_responses['documents']
+        elif any(word in message_lower for word in ['time', 'long', 'how long', 'when', 'days']):
+            response_text = lang_responses['time']
+        elif any(word in message_lower for word in ['replace', 'lost', 'stolen', 'damage']):
+            response_text = lang_responses['replace']
+        elif any(word in message_lower for word in ['track', 'status', 'check', 'where']):
+            response_text = lang_responses['track']
+        else:
+            response_text = lang_responses['default']
+        
+        return {
+            'success': True,
+            'message': response_text,
+            'language': self.language
+        }
     
     def get_quick_responses(self):
         """Get quick response suggestions based on language"""
