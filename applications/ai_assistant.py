@@ -147,27 +147,39 @@ Ku tsamaya mu System:
     
     def __init__(self, language='en'):
         self.language = language
-        self.model = genai.GenerativeModel('gemini-2.0-flash')
+        self.model = None
         self.chat = None
-        self.initialize_chat()
+        
+        # Only initialize model if API key is available
+        if api_key:
+            try:
+                self.model = genai.GenerativeModel('gemini-2.0-flash')
+                self.initialize_chat()
+            except Exception as e:
+                print(f"Failed to initialize Gemini model: {e}")
+                self.model = None
     
     def initialize_chat(self):
         """Initialize chat with system context"""
-        system_prompt = self.SYSTEM_CONTEXT.get(self.language, self.SYSTEM_CONTEXT['en'])
-        self.chat = self.model.start_chat(history=[])
-        # Send system context as first message
-        self.chat.send_message(f"System Context: {system_prompt}")
+        if not self.model:
+            return
+        
+        try:
+            system_prompt = self.SYSTEM_CONTEXT.get(self.language, self.SYSTEM_CONTEXT['en'])
+            self.chat = self.model.start_chat(history=[])
+            # Send system context as first message
+            self.chat.send_message(f"System Context: {system_prompt}")
+        except Exception as e:
+            print(f"Failed to initialize chat: {e}")
+            self.chat = None
     
     def send_message(self, message):
         """Send message and get response"""
+        # Check if API key is configured and model is initialized
+        if not api_key or not self.model or not self.chat:
+            return self.get_fallback_response(message)
+        
         try:
-            # Check if API key is configured
-            if not api_key:
-                return self.get_fallback_response(message)
-            
-            if not self.chat:
-                self.initialize_chat()
-            
             response = self.chat.send_message(message)
             return {
                 'success': True,
@@ -176,6 +188,7 @@ Ku tsamaya mu System:
             }
         except Exception as e:
             # Fallback to predefined responses if API fails
+            print(f"Gemini API error: {e}")
             return self.get_fallback_response(message)
     
     def change_language(self, new_language):
