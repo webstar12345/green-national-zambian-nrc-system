@@ -52,6 +52,12 @@
                         <a href="{% url 'applications:home' %}" class="text-white hover:text-zambian-orange transition-colors">
                             <i class="fas fa-home mr-1"></i> Home
                         </a>
+                        <a href="{% url 'applications:about' %}" class="text-white hover:text-zambian-orange transition-colors">
+                            <i class="fas fa-info-circle mr-1"></i> About
+                        </a>
+                        <a href="{% url 'applications:services' %}" class="text-white hover:text-zambian-orange transition-colors">
+                            <i class="fas fa-concierge-bell mr-1"></i> Services
+                        </a>
                         <div class="relative group">
                             <button class="text-white hover:text-zambian-orange transition-colors flex items-center">
                                 <i class="fas fa-plus mr-1"></i> Apply
@@ -97,6 +103,12 @@
                             </div>
                         </div>
                     {% else %}
+                        <a href="{% url 'applications:about' %}" class="text-white hover:text-zambian-orange transition-colors">
+                            <i class="fas fa-info-circle mr-1"></i> About
+                        </a>
+                        <a href="{% url 'applications:services' %}" class="text-white hover:text-zambian-orange transition-colors">
+                            <i class="fas fa-concierge-bell mr-1"></i> Services
+                        </a>
                         <a href="{% url 'accounts:login' %}" class="text-white hover:text-zambian-orange transition-colors">
                             <i class="fas fa-sign-in-alt mr-1"></i> Login
                         </a>
@@ -113,6 +125,12 @@
                     <div class="flex flex-col space-y-2">
                         <a href="{% url 'applications:home' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md">
                             <i class="fas fa-home mr-2"></i> Home
+                        </a>
+                        <a href="{% url 'applications:about' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md">
+                            <i class="fas fa-info-circle mr-2"></i> About Us
+                        </a>
+                        <a href="{% url 'applications:services' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md">
+                            <i class="fas fa-concierge-bell mr-2"></i> Services
                         </a>
                         <a href="{% url 'applications:apply' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md">
                             <i class="fas fa-id-card mr-2"></i> New NRC
@@ -137,6 +155,12 @@
                     </div>
                 {% else %}
                     <div class="flex flex-col space-y-2">
+                        <a href="{% url 'applications:about' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md">
+                            <i class="fas fa-info-circle mr-2"></i> About Us
+                        </a>
+                        <a href="{% url 'applications:services' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md">
+                            <i class="fas fa-concierge-bell mr-2"></i> Services
+                        </a>
                         <a href="{% url 'accounts:login' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md">
                             <i class="fas fa-sign-in-alt mr-2"></i> Login
                         </a>
