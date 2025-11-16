@@ -19,6 +19,14 @@ def home(request):
     }
     return render(request, 'applications/home.html', context)
 
+def about_us(request):
+    """About Us page"""
+    return render(request, 'applications/about.html')
+
+def services(request):
+    """Services page"""
+    return render(request, 'applications/services.html')
+
 @login_required
 def apply_nrc(request):
     # Check if user already has a new NRC application
