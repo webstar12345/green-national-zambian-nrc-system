@@ -9,8 +9,8 @@ import os
 icons_dir = 'static/images/icons'
 os.makedirs(icons_dir, exist_ok=True)
 
-# Icon sizes needed for PWA
-sizes = [72, 96, 128, 144, 152, 192, 384, 512]
+# Icon sizes needed for PWA (including iOS specific sizes)
+sizes = [72, 96, 128, 144, 152, 167, 180, 192, 384, 512]
 
 # Zambian flag colors
 GREEN = '#00A651'
