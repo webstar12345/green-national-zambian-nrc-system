@@ -4,6 +4,9 @@ set -o errexit
 
 pip install -r requirements.txt
 
+# Clear any cached templates
+python clear_cache.py || true
+
 python manage.py collectstatic --no-input
 python manage.py migrate
 python manage.py createdefaultadmin

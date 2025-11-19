@@ -4,6 +4,7 @@ django-crispy-forms==2.0
 crispy-tailwind==0.5.0
 python-decouple==3.8
 google-generativeai==0.3.1
+django-allauth==0.57.0
 
 # Production dependencies
 gunicorn==21.2.0
