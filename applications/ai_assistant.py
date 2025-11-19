@@ -220,6 +220,30 @@ Ku tsamaya mu System:
                 'replace': "Ukureplace NRC ishalafwile:\n1. Pindani 'Apply' → 'Replacement'\n2. Leteni police report\n3. Lembapo details\n4. Submit application",
                 'track': "Ukulanga application:\n1. Yani ku 'My Applications'\n2. Moneni applications yonse\n3. Chekeni status\n4. Download NRC card nga yavuminwa",
                 'default': "Ndefwaya ukubafwila na NRC applications! Mwingabushapo:\n• Ukwapply sha NRC impya\n• Documents ishakufwaikwa\n• Processing time\n• Ukureplace NRC\n• Ukulanga application"
+            },
+            'nya': {
+                'apply': "Kupanga application ya NRC yatsopano:\n1. Dinani 'Apply' mu menu\n2. Sankhani 'New NRC Application'\n3. Lembani zambiri zanu\n4. Upload documents (birth certificate, NRC ya makolo, chithunzi, proof of residence)\n5. Submit application\n\nProcessing imatenga masiku 14-30.",
+                'documents': "Documents zofunika:\n• Birth certificate\n• Copies za NRC za makolo\n• Passport photo\n• Proof of residence\n• Zaka 16 kapena kupitirira",
+                'time': "Processing ya application imatenga masiku 14-30. Mutha kuyang'ana status mu 'My Applications'.",
+                'replace': "Kusintha NRC yotayika:\n1. Dinani 'Apply' → 'Replacement'\n2. Perekani police report\n3. Lembani zambiri\n4. Submit application\n\nMulandira NRC yanu m'masiku 14-30.",
+                'track': "Kuyang'ana application:\n1. Pitani ku 'My Applications'\n2. Onani applications zonse\n3. Yang'anani status\n4. Download NRC card ikavomerezedwa",
+                'default': "Ndili pano kuthandiza ndi NRC applications! Mutha kufunsa za:\n• Kupanga application ya NRC yatsopano\n• Documents zofunika\n• Nthawi yaitali\n• Kusintha NRC yotayika\n• Kuyang'ana application yanu"
+            },
+            'toi': {
+                'apply': "Kupanga application ya NRC mpya:\n1. Kankani 'Apply' mu menu\n2. Salani 'New NRC Application'\n3. Lembani zyanu\n4. Upload documents (birth certificate, NRC ya bazyali, chifwaniso, proof of residence)\n5. Submit application\n\nProcessing itola masiku 14-30.",
+                'documents': "Documents zyakuyanda:\n• Birth certificate\n• Copies zya NRC zya bazyali\n• Passport photo\n• Proof of residence\n• Myaka 16 na kuti kupita",
+                'time': "Processing ya application itola masiku 14-30. Mulanga status mu 'My Applications'.",
+                'replace': "Kusandula NRC yalafwide:\n1. Kankani 'Apply' → 'Replacement'\n2. Letani police report\n3. Lembani zyanu\n4. Submit application\n\nMuyotambula NRC yanu mu masiku 14-30.",
+                'track': "Kulanga application:\n1. Yani ku 'My Applications'\n2. Mubone applications zyoonse\n3. Langani status\n4. Download NRC card naa yavuminwa",
+                'default': "Ndili ano kubafwida a NRC applications! Mulabuzya:\n• Kupanga application ya NRC mpya\n• Documents zyakuyanda\n• Ciindi citola\n• Kusandula NRC yalafwide\n• Kulanga application yanu"
+            },
+            'loz': {
+                'apply': "Ho etsa application ya NRC e ncha:\n1. Tobela 'Apply' mo menu\n2. Kgetha 'New NRC Application'\n3. Ngola lintlha tsa hao\n4. Upload documents (birth certificate, NRC ya batswadi, setshwantsho, proof of residence)\n5. Submit application\n\nProcessing e nka matsatsi 14-30.",
+                'documents': "Documents tse di nyakwang:\n• Birth certificate\n• Copies tsa NRC tsa batswadi\n• Passport photo\n• Proof of residence\n• Dilemo 16 kamba ku feta",
+                'time': "Processing ya application e nka matsatsi 14-30. U ka bona status mo 'My Applications'.",
+                'replace': "Ho fetola NRC e lahlehileng:\n1. Tobela 'Apply' → 'Replacement'\n2. Fana ka police report\n3. Ngola lintlha\n4. Submit application\n\nU tla fumana NRC ya hao ka matsatsi 14-30.",
+                'track': "Ho sheba application:\n1. Eya ho 'My Applications'\n2. Bona applications tsohle\n3. Sheba status\n4. Download NRC card ha e amohelwa",
+                'default': "Ke teng ho thusa ka NRC applications! U ka botsa ka:\n• Ho etsa application ya NRC e ncha\n• Documents tse di nyakwang\n• Nako e telele hakae\n• Ho fetola NRC e lahlehileng\n• Ho sheba application ya hao"
             }
         }
         
