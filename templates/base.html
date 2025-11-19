@@ -46,8 +46,17 @@
     <link href="{% static 'css/chat-widget.css' %}" rel="stylesheet">
     <link href="{% static 'css/mobile-responsive.css' %}" rel="stylesheet">
     <link href="{% static 'css/pwa-styles.css' %}" rel="stylesheet">
+    <link href="{% static 'css/auth-enhancements.css' %}" rel="stylesheet">
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 min-h-screen loading">
+    <!-- Page Loader -->
+    <div id="pageLoader" class="page-loader">
+        <div class="page-loader-logo">
+            <i class="fas fa-id-card"></i>
+        </div>
+        <div class="page-loader-spinner"></div>
+        <div class="page-loader-text">Loading NRC System...</div>
+    </div>
     <!-- Navigation -->
     <nav class="bg-zambian-green shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -290,6 +299,9 @@
     
     <!-- Animation Scripts -->
     <script src="{% static 'js/animations.js' %}"></script>
+    
+    <!-- Auth Enhancements (Password Toggle & Loaders) -->
+    <script src="{% static 'js/auth-enhancements.js' %}"></script>
     
     <!-- AI Chat Widget with Voice (only for authenticated users) -->
     {% if user.is_authenticated %}
