@@ -235,3 +235,53 @@
     margin-bottom: 5px;
     pointer-events: none;
 }
+
+
+/* Language Selector */
+.language-selector {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-right: 8px;
+    outline: none;
+}
+
+.language-selector:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.language-selector:focus {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.language-selector option {
+    background: #1f2937;
+    color: white;
+    padding: 8px;
+}
+
+/* Dark mode support for language selector */
+[data-theme="dark"] .language-selector {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="dark"] .language-selector:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+    .language-selector {
+        font-size: 12px;
+        padding: 5px 8px;
+        margin-right: 6px;
+    }
+}
