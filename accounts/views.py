@@ -82,3 +82,141 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
 
 class CustomPasswordResetCompleteView(PasswordResetCompleteView):
     template_name = 'accounts/password_reset_complete.html'
+
+
+# Google OAuth with OTP Verification
+from django.core.mail import send_mail
+from django.conf import settings
+from allauth.socialaccount.signals import pre_social_login
+from django.dispatch import receiver
+
+@receiver(pre_social_login)
+def handle_google_login(sender, request, sociallogin, **kwargs):
+    """
+    Handle Google OAuth login - generate and send OTP
+    """
+    # Get or create user
+    user = sociallogin.user
+    
+    # If user is new or not verified, generate OTP
+    if not user.pk or not user.otp_verified:
+        # Generate OTP
+        otp_code = user.generate_otp() if user.pk else None
+        
+        # Store user email in session for OTP verification
+        request.session['pending_google_email'] = user.email
+        request.session['pending_google_user_id'] = user.pk if user.pk else None
+        
+        # Send OTP email
+        if user.email:
+            send_otp_email(user.email, otp_code if otp_code else '000000')
+        
+        # Prevent automatic login
+        sociallogin.state['process'] = 'connect'
+        
+        # Redirect to OTP verification page
+        request.session['otp_required'] = True
+
+
+def send_otp_email(email, otp_code):
+    """Send OTP code via email"""
+    subject = 'NRC Zambia - Login Verification Code'
+    message = f"""
+    Hello,
+    
+    Your verification code for NRC Zambia login is: {otp_code}
+    
+    This code will expire in 10 minutes.
+    
+    If you didn't request this code, please ignore this email.
+    
+    Best regards,
+    NRC Zambia Team
+    """
+    
+    try:
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        print(f"Failed to send OTP email: {e}")
+
+
+def google_otp_verify(request):
+    """Verify OTP for Google OAuth login"""
+    if request.method == 'POST':
+        otp_code = request.POST.get('otp_code', '').strip()
+        email = request.session.get('pending_google_email')
+        user_id = request.session.get('pending_google_user_id')
+        
+        if not email:
+            messages.error(request, 'Session expired. Please try logging in again.')
+            return redirect('accounts:login')
+        
+        # Get user
+        from .models import CustomUser
+        try:
+            if user_id:
+                user = CustomUser.objects.get(pk=user_id)
+            else:
+                user = CustomUser.objects.get(email=email)
+            
+            # Verify OTP
+            if user.verify_otp(otp_code):
+                # OTP verified, log user in
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                
+                # Clear session
+                request.session.pop('pending_google_email', None)
+                request.session.pop('pending_google_user_id', None)
+                request.session.pop('otp_required', None)
+                
+                messages.success(request, 'Successfully logged in with Google!')
+                return redirect('applications:home')
+            else:
+                messages.error(request, 'Invalid or expired OTP code. Please try again.')
+        
+        except CustomUser.DoesNotExist:
+            messages.error(request, 'User not found. Please try logging in again.')
+            return redirect('accounts:login')
+    
+    # GET request - show OTP form
+    email = request.session.get('pending_google_email')
+    if not email:
+        return redirect('accounts:login')
+    
+    return render(request, 'accounts/google_otp_verify.html', {'email': email})
+
+
+def resend_otp(request):
+    """Resend OTP code"""
+    email = request.session.get('pending_google_email')
+    user_id = request.session.get('pending_google_user_id')
+    
+    if not email:
+        messages.error(request, 'Session expired. Please try logging in again.')
+        return redirect('accounts:login')
+    
+    from .models import CustomUser
+    try:
+        if user_id:
+            user = CustomUser.objects.get(pk=user_id)
+        else:
+            user = CustomUser.objects.get(email=email)
+        
+        # Generate new OTP
+        otp_code = user.generate_otp()
+        
+        # Send email
+        send_otp_email(user.email, otp_code)
+        
+        messages.success(request, 'New OTP code sent to your email!')
+    
+    except CustomUser.DoesNotExist:
+        messages.error(request, 'User not found.')
+    
+    return redirect('accounts:google_otp_verify')

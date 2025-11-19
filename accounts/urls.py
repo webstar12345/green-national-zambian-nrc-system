@@ -24,4 +24,8 @@ urlpatterns = [
     path('password-reset/done/', CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
     path('password-reset-confirm/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('password-reset-complete/', CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    
+    # Google OAuth OTP Verification
+    path('google-otp-verify/', views.google_otp_verify, name='google_otp_verify'),
+    path('resend-otp/', views.resend_otp, name='resend_otp'),
 ]
