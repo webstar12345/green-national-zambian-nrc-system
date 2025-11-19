@@ -47,6 +47,7 @@
     <link href="{% static 'css/mobile-responsive.css' %}" rel="stylesheet">
     <link href="{% static 'css/pwa-styles.css' %}" rel="stylesheet">
     <link href="{% static 'css/auth-enhancements.css' %}" rel="stylesheet">
+    <link href="{% static 'css/dark-mode.css' %}" rel="stylesheet">
 </head>
 <body class="bg-gray-50 min-h-screen loading">
     <!-- Page Loader -->
@@ -302,6 +303,9 @@
     
     <!-- Auth Enhancements (Password Toggle & Loaders) -->
     <script src="{% static 'js/auth-enhancements.js' %}"></script>
+    
+    <!-- Dark Mode Toggle -->
+    <script src="{% static 'js/dark-mode.js' %}"></script>
     
     <!-- AI Chat Widget with Voice (only for authenticated users) -->
     {% if user.is_authenticated %}

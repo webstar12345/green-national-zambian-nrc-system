@@ -2,11 +2,20 @@
 class VoiceChatWidget {
     constructor() {
         this.isOpen = false;
-        this.currentLanguage = 'en';
+        this.currentLanguage = localStorage.getItem('chatLanguage') || 'en';
         this.messages = [];
         this.isTyping = false;
         this.isRecording = false;
         this.isSpeaking = false;
+        this.voiceEnabled = localStorage.getItem('voiceEnabled') !== 'false';
+        
+        // Language names
+        this.languages = {
+            'en': 'English',
+            'nya': 'Nyanja',
+            'toi': 'Tonga',
+            'loz': 'Lozi'
+        };
         
         // Voice Recognition
         this.recognition = null;
@@ -65,8 +74,16 @@ class VoiceChatWidget {
     init() {
         this.createWidget();
         this.attachEventListeners();
+        this.initializeLanguageSelector();
         this.loadQuickResponses();
         this.addWelcomeMessage();
+    }
+    
+    initializeLanguageSelector() {
+        const selector = document.getElementById('languageSelector');
+        if (selector) {
+            selector.value = this.currentLanguage;
+        }
     }
     
     createWidget() {
@@ -93,6 +110,12 @@ class VoiceChatWidget {
                             </div>
                         </div>
                         <div class="chat-controls">
+                            <select class="language-selector" id="languageSelector" title="Select language">
+                                <option value="en">🇬🇧 English</option>
+                                <option value="nya">🇿🇲 Nyanja</option>
+                                <option value="toi">🇿🇲 Tonga</option>
+                                <option value="loz">🇿🇲 Lozi</option>
+                            </select>
                             <button class="chat-control-btn" id="voiceToggle" title="Toggle voice responses">
                                 <svg viewBox="0 0 24 24" id="voiceIcon">
                                     <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
