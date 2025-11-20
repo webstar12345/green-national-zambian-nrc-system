@@ -27,6 +27,8 @@ INSTALLED_APPS = [
     'django.contrib.sites',  # Required for allauth
     
     # Third-party apps
+    'cloudinary_storage',
+    'cloudinary',
     'crispy_forms',
     'crispy_tailwind',
     'allauth',
@@ -118,8 +120,21 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # WhiteNoise configuration for static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# Cloudinary Configuration for Media Files
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
+    'API_KEY': config('CLOUDINARY_API_KEY', default=''),
+    'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
+}
+
+# Use Cloudinary for media files in production
+if config('USE_CLOUDINARY', default=False, cast=bool):
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    MEDIA_URL = '/media/'
+else:
+    # Local development
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 # Security settings for production
 if not DEBUG:
