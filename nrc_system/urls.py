@@ -5,8 +5,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('allauth.urls')),  # Allauth URLs (must come before accounts.urls)
-    path('accounts/', include('accounts.urls')),
+    path('accounts/', include('accounts.urls')),  # Custom accounts URLs (must come before allauth)
+    path('accounts/', include('allauth.urls')),  # Allauth URLs for social auth
     path('', include('applications.urls')),
 ]
 

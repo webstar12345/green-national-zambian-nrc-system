@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',  # Required for allauth
-    
+
     # Third-party apps
     'cloudinary_storage',
     'cloudinary',
@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    
+
     # Local apps
     'accounts',
     'applications',
@@ -45,14 +45,14 @@ SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add WhiteNoise for static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',  # Required for allauth
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'nrc_system.urls'
@@ -76,36 +76,22 @@ TEMPLATES = [
 WSGI_APPLICATION = 'nrc_system.wsgi.application'
 
 # Database configuration
-# Use PostgreSQL in production, SQLite in development
 DATABASE_URL = config('DATABASE_URL', default=None)
-
 if DATABASE_URL:
-    # Production: Use PostgreSQL from Render
-    DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL)
-    }
+    DATABASES = {'default': dj_database_url.parse(DATABASE_URL)}
 else:
-    # Development: Use SQLite
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': BASE_DIR / 'db_fresh.sqlite3',
         }
     }
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 LANGUAGE_CODE = 'en-us'
@@ -116,27 +102,24 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-# WhiteNoise configuration for static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Cloudinary Configuration for Media Files
+# Cloudinary
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
     'API_KEY': config('CLOUDINARY_API_KEY', default=''),
     'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
 }
-
-# Use Cloudinary for media files in production
 if config('USE_CLOUDINARY', default=False, cast=bool):
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     MEDIA_URL = '/media/'
 else:
-    # Local development
     MEDIA_URL = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'
 
-# Security settings for production
+# ───────────────────────────────
+# PRODUCTION SECURITY SETTINGS (FIXES GOOGLE LOGIN LOOP ON RENDER)
+# ───────────────────────────────
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
@@ -145,29 +128,26 @@ if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
 
+    # THESE TWO LINES ARE ABSOLUTELY CRITICAL FOR RENDER
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    USE_X_FORWARDED_HOST = True
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
-# Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
 CRISPY_TEMPLATE_PACK = "tailwind"
 
-# Login/Logout URLs
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'applications:home'
 LOGOUT_REDIRECT_URL = 'accounts:login'
 
-# Email Configuration for Password Reset
-# For development, we'll use console backend (prints emails to console)
-# For production, configure with real SMTP settings
-
+# Email
 if DEBUG:
-    # Development: Print emails to console
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
-    # Production: Use SMTP (configure these in .env)
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
     EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
@@ -175,37 +155,33 @@ else:
     EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
     EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 
-# Default from email
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@zambiannrc.gov.zm')
-EMAIL_SUBJECT_PREFIX = '[Zambian NRC] '
-
-# Password Reset Timeout (in seconds) - 24 hours
 PASSWORD_RESET_TIMEOUT = 86400
 
-# Django Allauth Configuration
+# ───────────────────────────────
+# DJANGO-ALLAUTH + GOOGLE
+# ───────────────────────────────
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',  # Default backend
-    'allauth.account.auth_backends.AuthenticationBackend',  # Allauth backend
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-# Allauth settings
+# Custom allauth adapter to handle MultipleObjectsReturned
+SOCIALACCOUNT_ADAPTER = 'accounts.adapters.CustomSocialAccountAdapter'
+
 ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = 'optional'  # Can be 'mandatory', 'optional', or 'none'
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
 ACCOUNT_USERNAME_REQUIRED = True
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_QUERY_EMAIL = True
 
-# Google OAuth settings
+# Google OAuth
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        },
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
         'APP': {
             'client_id': config('GOOGLE_CLIENT_ID', default=''),
             'secret': config('GOOGLE_CLIENT_SECRET', default=''),
@@ -213,3 +189,7 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
+
+# Force HTTPS redirect URIs in production (Render fix)
+if not DEBUG:
+    os.environ['SOCIALACCOUNT_REDIRECT_IS_HTTPS'] = 'true'
