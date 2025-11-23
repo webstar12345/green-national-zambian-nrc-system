@@ -10,3 +10,4 @@ python clear_cache.py || true
 python manage.py collectstatic --no-input
 python manage.py migrate
 python manage.py createdefaultadmin
+python manage.py update_site_domain
