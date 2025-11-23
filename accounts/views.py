@@ -84,38 +84,20 @@ class CustomPasswordResetCompleteView(PasswordResetCompleteView):
     template_name = 'accounts/password_reset_complete.html'
 
 
-# Google OAuth with OTP Verification
+# Google OAuth with OTP Verification (DISABLED FOR TESTING)
 from django.core.mail import send_mail
 from django.conf import settings
 from allauth.socialaccount.signals import pre_social_login
 from django.dispatch import receiver
 
-@receiver(pre_social_login)
-def handle_google_login(sender, request, sociallogin, **kwargs):
+# TEMPORARILY DISABLED - This was causing the redirect loop
+# @receiver(pre_social_login)
+def handle_google_login_disabled(sender, request, sociallogin, **kwargs):
     """
     Handle Google OAuth login - generate and send OTP
+    DISABLED: This was preventing Google OAuth from working
     """
-    # Get or create user
-    user = sociallogin.user
-    
-    # If user is new or not verified, generate OTP
-    if not user.pk or not user.otp_verified:
-        # Generate OTP
-        otp_code = user.generate_otp() if user.pk else None
-        
-        # Store user email in session for OTP verification
-        request.session['pending_google_email'] = user.email
-        request.session['pending_google_user_id'] = user.pk if user.pk else None
-        
-        # Send OTP email
-        if user.email:
-            send_otp_email(user.email, otp_code if otp_code else '000000')
-        
-        # Prevent automatic login
-        sociallogin.state['process'] = 'connect'
-        
-        # Redirect to OTP verification page
-        request.session['otp_required'] = True
+    pass
 
 
 def send_otp_email(email, otp_code):
