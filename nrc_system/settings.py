@@ -193,3 +193,27 @@ SOCIALACCOUNT_PROVIDERS = {
 # Force HTTPS redirect URIs in production (Render fix)
 if not DEBUG:
     os.environ['SOCIALACCOUNT_REDIRECT_IS_HTTPS'] = 'true'
+#
+ Auto-configure Site domain for Google OAuth
+if RENDER_EXTERNAL_HOSTNAME:
+    # Update Site domain automatically on startup for production
+    def update_site_domain():
+        from django.contrib.sites.models import Site
+        try:
+            site = Site.objects.get_current()
+            if site.domain != RENDER_EXTERNAL_HOSTNAME:
+                site.domain = RENDER_EXTERNAL_HOSTNAME
+                site.name = 'Zambian NRC System'
+                site.save()
+                print(f'Site domain updated to: {RENDER_EXTERNAL_HOSTNAME}')
+        except Exception as e:
+            print(f'Could not update site domain: {e}')
+    
+    # Run after Django is ready
+    import django
+    from django.conf import settings
+    if settings.configured:
+        try:
+            update_site_domain()
+        except:
+            pass
