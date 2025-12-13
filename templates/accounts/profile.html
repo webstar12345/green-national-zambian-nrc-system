@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - Zambian NRC System{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto fade-in-scroll">
+    <!-- Profile Header -->
+    <div class="bg-gradient-to-r from-zambian-green to-green-600 rounded-lg shadow-lg p-8 mb-6 text-white">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                {% if user.profile_image %}
+                    <img src="{{ user.profile_image.url }}" alt="{{ user.get_full_name }}" 
+                         class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg">
+                {% else %}
+                    <div class="w-24 h-24 rounded-full bg-zambian-orange flex items-center justify-center text-white text-3xl font-bold border-4 border-white shadow-lg">
+                        {{ user.get_initials }}
+                    </div>
+                {% endif %}
+                <div class="ml-6">
+                    <h1 class="text-3xl font-bold">{{ user.get_full_name|default:user.username }}</h1>
+                    <p class="text-green-100">@{{ user.username }}</p>
+                    <p class="text-green-100 mt-1">
+                        <i class="fas fa-envelope mr-2"></i>{{ user.email }}
+                    </p>
+                    {% if user.phone_number %}
+                    <p class="text-green-100">
+                        <i class="fas fa-phone mr-2"></i>{{ user.phone_number }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            <a href="{% url 'accounts:edit_profile' %}" 
+               class="px-6 py-3 bg-white text-zambian-green rounded-lg hover:bg-gray-100 transition-colors font-semibold shadow-md">
+                <i class="fas fa-edit mr-2"></i>Edit Profile
+            </a>
+        </div>
+        {% if user.bio %}
+        <div class="mt-6 p-4 bg-white bg-opacity-20 rounded-lg">
+            <p class="text-white">{{ user.bio }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Statistics -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Stats Cards -->
+            <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-chart-bar text-zambian-green mr-2"></i>Statistics
+                </h2>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-file-alt text-zambian-green mr-3"></i>
+                            <span class="text-gray-700">Total Applications</span>
+                        </div>
+                        <span class="text-2xl font-bold text-gray-900">{{ total_applications }}</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-600 mr-3"></i>
+                            <span class="text-gray-700">Approved</span>
+                        </div>
+                        <span class="text-2xl font-bold text-green-600">{{ approved_applications }}</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-clock text-yellow-600 mr-3"></i>
+                            <span class="text-gray-700">Pending</span>
+                        </div>
+                        <span class="text-2xl font-bold text-yellow-600">{{ pending_applications }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Info -->
+            <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-info-circle text-zambian-orange mr-2"></i>Account Info
+                </h2>
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <p class="text-gray-600">Member Since</p>
+                        <p class="font-semibold text-gray-900">{{ user.date_joined|date:"F d, Y" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Last Login</p>
+                        <p class="font-semibold text-gray-900">{{ user.last_login|date:"F d, Y g:i A"|default:"Never" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Account Status</p>
+                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+                            {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </div>
+                    {% if user.nrc_number %}
+                    <div>
+                        <p class="text-gray-600">NRC Number</p>
+                        <p class="font-semibold text-zambian-green">{{ user.nrc_number }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity History -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900">
+                        <i class="fas fa-history text-zambian-green mr-2"></i>Recent Activity
+                    </h2>
+                    <a href="{% url 'applications:my_applications' %}" 
+                       class="text-zambian-green hover:text-green-700 font-medium text-sm">
+                        View All →
+                    </a>
+                </div>
+
+                {% if applications %}
+                    <div class="space-y-4">
+                        {% for app in applications %}
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-{% if app.application_type == 'new' %}id-card{% else %}sync-alt{% endif %} text-zambian-green mr-2"></i>
+                                        <h3 class="font-semibold text-gray-900">{{ app.get_application_type_display }} Application</h3>
+                                        <span class="ml-3 px-2 py-1 text-xs rounded-full 
+                                                   {% if app.status == 'approved' %}bg-green-100 text-green-800
+                                                   {% elif app.status == 'rejected' %}bg-red-100 text-red-800
+                                                   {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                            {{ app.get_status_display }}
+                                        </span>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4 text-sm text-gray-600 mt-3">
+                                        <div>
+                                            <i class="fas fa-calendar mr-1"></i>
+                                            Applied: {{ app.created_at|date:"M d, Y" }}
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-map-marker-alt mr-1"></i>
+                                            {{ app.district }}
+                                        </div>
+                                        {% if app.nrc_number %}
+                                        <div class="col-span-2">
+                                            <i class="fas fa-id-card mr-1"></i>
+                                            NRC: <span class="font-semibold text-zambian-green">{{ app.nrc_number }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <a href="{% url 'applications:application_detail' app.pk %}" 
+                                   class="ml-4 px-4 py-2 bg-zambian-green text-white rounded-md hover:bg-green-700 transition-colors text-sm">
+                                    <i class="fas fa-eye mr-1"></i>View
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-12">
+                        <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">No Activity Yet</h3>
+                        <p class="text-gray-600 mb-6">You haven't submitted any applications yet.</p>
+                        <a href="{% url 'applications:apply' %}" 
+                           class="inline-flex items-center px-6 py-3 bg-zambian-green text-white rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Apply for NRC
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
