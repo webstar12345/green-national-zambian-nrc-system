@@ -24,6 +24,9 @@ class OTPService:
         from django.core.mail import EmailMultiAlternatives
         from django.template.loader import render_to_string
         from django.conf import settings
+        import logging
+        
+        logger = logging.getLogger(__name__)
         
         subject = 'NRC Zambia - Verification Code'
         
@@ -48,10 +51,13 @@ NRC Zambia Team
                 'otp_code': otp_code,
             })
         except Exception as e:
-            print(f"Failed to render HTML template: {e}")
+            logger.error(f"Failed to render HTML template: {e}")
             html_message = None
         
         try:
+            # Log email attempt (without sensitive data)
+            logger.info(f"Attempting to send OTP email to {email[:3]}***@{email.split('@')[1] if '@' in email else 'unknown'}")
+            
             # Create email with both text and HTML versions
             email_msg = EmailMultiAlternatives(
                 subject,
@@ -64,10 +70,23 @@ NRC Zambia Team
                 email_msg.attach_alternative(html_message, "text/html")
             
             email_msg.send(fail_silently=False)
+            logger.info("OTP email sent successfully")
             return True
             
         except Exception as e:
-            print(f"Failed to send OTP email: {e}")
+            error_msg = str(e)
+            logger.error(f"Failed to send OTP email: {error_msg}")
+            
+            # Provide specific error guidance
+            if "authentication failed" in error_msg.lower():
+                print("🔐 SMTP Authentication Failed - Check Gmail app password")
+            elif "connection" in error_msg.lower():
+                print("🌐 Network Connection Issue - Check internet/firewall")
+            elif "timeout" in error_msg.lower():
+                print("⏰ SMTP Timeout - Server may be slow or unreachable")
+            else:
+                print(f"📧 Email Error: {error_msg}")
+            
             return False
     
     @staticmethod
