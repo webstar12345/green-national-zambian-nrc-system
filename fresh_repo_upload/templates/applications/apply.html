@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block title %}Apply for NRC - Zambian NRC System{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Apply for National Registration Card</h1>
+            <p class="text-gray-600">Please fill out all required information accurately. All fields marked with * are required.</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-8">
+            {% csrf_token %}
+            
+
+
+            <!-- Applicant Information -->
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-user text-zambian-green mr-2"></i>Your Information
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="id_village" class="block text-sm font-medium text-gray-700 mb-2">Your Village *</label>
+                        <input type="text" id="id_village" name="village" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green"
+                               placeholder="Enter your village">
+                    </div>
+                    <div>
+                        <label for="id_district" class="block text-sm font-medium text-gray-700 mb-2">Your District *</label>
+                        <input type="text" id="id_district" name="district" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green"
+                               placeholder="Enter your district">
+                    </div>
+                    <div>
+                        <label for="id_date_of_birth" class="block text-sm font-medium text-gray-700 mb-2">Your Date of Birth *</label>
+                        <input type="date" id="id_date_of_birth" name="date_of_birth" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green">
+                    </div>
+                    <div>
+                        <label for="id_place_of_birth" class="block text-sm font-medium text-gray-700 mb-2">Your Place of Birth *</label>
+                        <input type="text" id="id_place_of_birth" name="place_of_birth" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green"
+                               placeholder="Enter your place of birth">
+                    </div>
+                    <div>
+                        <label for="id_chief_name" class="block text-sm font-medium text-gray-700 mb-2">Your Chief Name *</label>
+                        <input type="text" id="id_chief_name" name="chief_name" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green"
+                               placeholder="Enter your chief name">
+                    </div>
+                    <div>
+                        <label for="id_sex" class="block text-sm font-medium text-gray-700 mb-2">Sex/Gender *</label>
+                        <select id="id_sex" name="sex" required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green">
+                            <option value="">Select gender</option>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="id_photo" class="block text-sm font-medium text-gray-700 mb-2">Your Photo (Passport Size)</label>
+                        <input type="file" id="id_photo" name="photo" accept="image/*" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green">
+                        <p class="text-sm text-gray-500 mt-1">Upload a passport-size photo (JPG, PNG, or GIF format, max 5MB) - Optional</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mother's Information -->
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-female text-zambian-orange mr-2"></i>Mother's Information
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label for="id_mother_full_name" class="block text-sm font-medium text-gray-700 mb-2">Mother's Full Name *</label>
+                        <input type="text" id="id_mother_full_name" name="mother_full_name" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green"
+                               placeholder="Enter mother's full name (First, Middle, Last)">
+                    </div>
+                    <div>
+                        <label for="id_mother_village" class="block text-sm font-medium text-gray-700 mb-2">Mother's Village *</label>
+                        <input type="text" id="id_mother_village" name="mother_village" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green"
+                               placeholder="Enter mother's village">
+                    </div>
+                    <div>
+                        <label for="id_mother_district" class="block text-sm font-medium text-gray-700 mb-2">Mother's District *</label>
+                        <input type="text" id="id_mother_district" name="mother_district" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green"
+                               placeholder="Enter mother's district">
+                    </div>
+                    <div>
+                        <label for="id_mother_date_of_birth" class="block text-sm font-medium text-gray-700 mb-2">Mother's Date of Birth *</label>
+                        <input type="date" id="id_mother_date_of_birth" name="mother_date_of_birth" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green">
+                    </div>
+                    <div>
+                        <label for="id_mother_place_of_birth" class="block text-sm font-medium text-gray-700 mb-2">Mother's Place of Birth *</label>
+                        <input type="text" id="id_mother_place_of_birth" name="mother_place_of_birth" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green"
+                               placeholder="Enter mother's place of birth">
+                    </div>
+                    <div>
+                        <label for="id_mother_chief_name" class="block text-sm font-medium text-gray-700 mb-2">Mother's Chief Name *</label>
+                        <input type="text" id="id_mother_chief_name" name="mother_chief_name" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green"
+                               placeholder="Enter mother's chief name">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Father's Information -->
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-male text-zambian-red mr-2"></i>Father's Information
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label for="id_father_full_name" class="block text-sm font-medium text-gray-700 mb-2">Father's Full Name *</label>
+                        <input type="text" id="id_father_full_name" name="father_full_name" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green"
+                               placeholder="Enter father's full name (First, Middle, Last)">
+                    </div>
+                    <div>
+                        <label for="id_father_village" class="block text-sm font-medium text-gray-700 mb-2">Father's Village *</label>
+                        <input type="text" id="id_father_village" name="father_village" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green"
+                               placeholder="Enter father's village">
+                    </div>
+                    <div>
+                        <label for="id_father_district" class="block text-sm font-medium text-gray-700 mb-2">Father's District *</label>
+                        <input type="text" id="id_father_district" name="father_district" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green"
+                               placeholder="Enter father's district">
+                    </div>
+                    <div>
+                        <label for="id_father_date_of_birth" class="block text-sm font-medium text-gray-700 mb-2">Father's Date of Birth *</label>
+                        <input type="date" id="id_father_date_of_birth" name="father_date_of_birth" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green">
+                    </div>
+                    <div>
+                        <label for="id_father_place_of_birth" class="block text-sm font-medium text-gray-700 mb-2">Father's Place of Birth *</label>
+                        <input type="text" id="id_father_place_of_birth" name="father_place_of_birth" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green"
+                               placeholder="Enter father's place of birth">
+                    </div>
+                    <div>
+                        <label for="id_father_chief_name" class="block text-sm font-medium text-gray-700 mb-2">Father's Chief Name *</label>
+                        <input type="text" id="id_father_chief_name" name="father_chief_name" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green"
+                               placeholder="Enter father's chief name">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Upload -->
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-file-upload text-zambian-black mr-2"></i>Required Documents
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="id_birth_certificate" class="block text-sm font-medium text-gray-700 mb-2">Birth Certificate (PDF) *</label>
+                        <input type="file" id="id_birth_certificate" name="birth_certificate" accept=".pdf" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green">
+                        <p class="text-sm text-gray-500 mt-1">Upload your birth certificate in PDF format</p>
+                    </div>
+                    <div>
+                        <label for="id_under_five_card" class="block text-sm font-medium text-gray-700 mb-2">Under Five Card (PDF) *</label>
+                        <input type="file" id="id_under_five_card" name="under_five_card" accept=".pdf" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-zambian-green focus:border-zambian-green">
+                        <p class="text-sm text-gray-500 mt-1">Upload your under five card in PDF format</p>
+                    </div>
+
+                </div>
+            </div>
+
+            {% if form.errors %}
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Submit Button -->
+            <div class="flex justify-end space-x-4">
+                <a href="{% url 'applications:home' %}" 
+                   class="px-6 py-3 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-6 py-3 bg-zambian-green text-white rounded-md hover:bg-green-700 transition-colors">
+                    <i class="fas fa-paper-plane mr-2"></i>Submit Application
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+{% endblock %}

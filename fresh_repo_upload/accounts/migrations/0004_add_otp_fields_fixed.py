@@ -4,7 +4,8 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0003_customuser_otp_code_customuser_otp_created_at_and_more'),
+        ('accounts', '0014_auto_20241101_1234'),  # ← CHANGE THIS to your actual last migration number/name
+        # Example: if your last file is 0012_....py → put '0012_xxxxxx'
     ]
 
     operations = [
