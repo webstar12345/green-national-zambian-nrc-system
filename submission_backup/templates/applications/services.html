@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+
+{% block title %}Our Services - Zambian NRC System{% endblock %}
+
+{% block content %}
+<div class="min-h-screen">
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-r from-zambian-orange to-orange-600 text-white py-16 mb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">Our Services</h1>
+                <p class="text-xl md:text-2xl text-orange-100">Comprehensive NRC Solutions for All Zambians</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Services -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">What We Offer</h2>
+            <div class="w-24 h-1 bg-zambian-orange mx-auto"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Service 1: New NRC -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+                <div class="bg-gradient-to-br from-zambian-green to-green-600 p-6 text-white">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-id-card text-3xl text-zambian-green"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold">New NRC Application</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-4">Apply for your first National Registration Card when you turn 16 years old.</p>
+                    <ul class="space-y-2 mb-6">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-zambian-green mr-2 mt-1"></i>
+                            <span class="text-gray-700">Online application process</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-zambian-green mr-2 mt-1"></i>
+                            <span class="text-gray-700">Upload required documents</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-zambian-green mr-2 mt-1"></i>
+                            <span class="text-gray-700">Track application status</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-zambian-green mr-2 mt-1"></i>
+                            <span class="text-gray-700">Receive card within 30 days</span>
+                        </li>
+                    </ul>
+                    <a href="{% url 'applications:apply' %}" class="block w-full bg-zambian-green text-white text-center py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                        Apply Now <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Service 2: NRC Replacement -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+                <div class="bg-gradient-to-br from-zambian-red to-red-600 p-6 text-white">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-sync-alt text-3xl text-zambian-red"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold">NRC Replacement</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-4">Replace your lost, stolen, damaged, or expired National Registration Card.</p>
+                    <ul class="space-y-2 mb-6">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-zambian-red mr-2 mt-1"></i>
+                            <span class="text-gray-700">Report lost/stolen cards</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-zambian-red mr-2 mt-1"></i>
+                            <span class="text-gray-700">Replace damaged cards</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-zambian-red mr-2 mt-1"></i>
+                            <span class="text-gray-700">Update personal information</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-zambian-red mr-2 mt-1"></i>
+                            <span class="text-gray-700">Fast-track processing</span>
+                        </li>
+                    </ul>
+                    <a href="{% url 'applications:apply_replacement' %}" class="block w-full bg-zambian-red text-white text-center py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+                        Apply for Replacement <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Service 3: Status Tracking -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+                <div class="bg-gradient-to-br from-zambian-orange to-orange-600 p-6 text-white">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-search text-3xl text-zambian-orange"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold">Application Tracking</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-4">Track the status of your NRC application in real-time online.</p>
+                    <ul class="space-y-2 mb-6">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-zambian-orange mr-2 mt-1"></i>
+                            <span class="text-gray-700">Real-time status updates</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-zambian-orange mr-2 mt-1"></i>
+                            <span class="text-gray-700">Email notifications</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-zambian-orange mr-2 mt-1"></i>
+                            <span class="text-gray-700">View application history</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-zambian-orange mr-2 mt-1"></i>
+                            <span class="text-gray-700">Download digital copy</span>
+                        </li>
+                    </ul>
+                    <a href="{% url 'applications:my_applications' %}" class="block w-full bg-zambian-orange text-white text-center py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors">
+                        Track Application <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Services -->
+    <div class="bg-gray-50 py-16 mb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Additional Services</h2>
+                <div class="w-24 h-1 bg-zambian-green mx-auto"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Service Item -->
+                <div class="bg-white rounded-lg shadow-md p-6 flex items-start hover:shadow-lg transition-shadow">
+                    <div class="bg-zambian-green text-white p-3 rounded-full mr-4 flex-shrink-0">
+                        <i class="fas fa-mobile-alt text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Mobile Services</h3>
+                        <p class="text-gray-600">Access our services on-the-go with our mobile-friendly platform. Apply, track, and manage your NRC from anywhere.</p>
+                    </div>
+                </div>
+
+                <!-- Service Item -->
+                <div class="bg-white rounded-lg shadow-md p-6 flex items-start hover:shadow-lg transition-shadow">
+                    <div class="bg-zambian-orange text-white p-3 rounded-full mr-4 flex-shrink-0">
+                        <i class="fas fa-headset text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">24/7 Support</h3>
+                        <p class="text-gray-600">Get help anytime with our AI-powered chat assistant and dedicated customer support team available round the clock.</p>
+                    </div>
+                </div>
+
+                <!-- Service Item -->
+                <div class="bg-white rounded-lg shadow-md p-6 flex items-start hover:shadow-lg transition-shadow">
+                    <div class="bg-zambian-green text-white p-3 rounded-full mr-4 flex-shrink-0">
+                        <i class="fas fa-shield-alt text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Secure Platform</h3>
+                        <p class="text-gray-600">Your data is protected with bank-level encryption and security measures to ensure privacy and prevent fraud.</p>
+                    </div>
+                </div>
+
+                <!-- Service Item -->
+                <div class="bg-white rounded-lg shadow-md p-6 flex items-start hover:shadow-lg transition-shadow">
+                    <div class="bg-zambian-orange text-white p-3 rounded-full mr-4 flex-shrink-0">
+                        <i class="fas fa-file-download text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Digital NRC</h3>
+                        <p class="text-gray-600">Download and save a digital copy of your NRC for quick access and verification purposes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Process Steps -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">How It Works</h2>
+            <div class="w-24 h-1 bg-zambian-orange mx-auto mb-4"></div>
+            <p class="text-gray-600 max-w-2xl mx-auto">Simple steps to get your National Registration Card</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- Step 1 -->
+            <div class="text-center">
+                <div class="bg-zambian-green text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">1</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Create Account</h3>
+                <p class="text-gray-600">Sign up with your personal details and verify your email address</p>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="text-center">
+                <div class="bg-zambian-orange text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">2</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Submit Application</h3>
+                <p class="text-gray-600">Fill out the form and upload required documents online</p>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="text-center">
+                <div class="bg-zambian-green text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">3</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Processing</h3>
+                <p class="text-gray-600">We review and process your application within 14-30 days</p>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="text-center">
+                <div class="bg-zambian-orange text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">4</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Receive NRC</h3>
+                <p class="text-gray-600">Collect your card or have it delivered to your address</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="bg-zambian-green text-white py-16 mb-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
+                <div class="w-24 h-1 bg-white mx-auto"></div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="bg-white bg-opacity-10 rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-2"><i class="fas fa-question-circle mr-2"></i> How long does it take to get my NRC?</h3>
+                    <p class="text-green-100">Processing typically takes 14-30 days from the date of application submission.</p>
+                </div>
+
+                <div class="bg-white bg-opacity-10 rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-2"><i class="fas fa-question-circle mr-2"></i> What documents do I need?</h3>
+                    <p class="text-green-100">You need a birth certificate, proof of residence, and two passport-sized photos.</p>
+                </div>
+
+                <div class="bg-white bg-opacity-10 rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-2"><i class="fas fa-question-circle mr-2"></i> Can I track my application online?</h3>
+                    <p class="text-green-100">Yes! Log in to your account to track your application status in real-time.</p>
+                </div>
+
+                <div class="bg-white bg-opacity-10 rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-2"><i class="fas fa-question-circle mr-2"></i> What if I lose my NRC?</h3>
+                    <p class="text-green-100">You can apply for a replacement online through our NRC Replacement service.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <div class="bg-gradient-to-r from-zambian-orange to-orange-600 rounded-lg shadow-xl p-8 md:p-12 text-center text-white">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">Need Help?</h2>
+            <p class="text-xl text-orange-100 mb-8">Our team is here to assist you with any questions or concerns</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'applications:about' %}" class="bg-white text-zambian-orange px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-info-circle mr-2"></i> Learn More About Us
+                </a>
+                <a href="{% url 'applications:home' %}" class="bg-zambian-green text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                    <i class="fas fa-home mr-2"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

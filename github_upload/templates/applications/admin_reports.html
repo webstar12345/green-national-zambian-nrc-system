@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports - Zambian NRC System{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto fade-in-scroll">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">System Reports</h1>
+        <p class="text-gray-600">Generate and export various reports for analysis and monitoring</p>
+    </div>
+
+    <!-- Report Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Summary Report -->
+        <div class="bg-white rounded-lg shadow-md p-6 card-hover scale-up">
+            <div class="flex items-center justify-center w-16 h-16 bg-zambian-green rounded-full mx-auto mb-4">
+                <i class="fas fa-chart-pie text-white text-2xl"></i>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-900 text-center mb-3">Summary Report</h2>
+            <p class="text-gray-600 text-center mb-6">
+                Overview statistics, trends, and key metrics for all applications
+            </p>
+            <div class="space-y-2 mb-6">
+                <div class="flex items-center text-sm text-gray-700">
+                    <i class="fas fa-check text-zambian-green mr-2"></i>
+                    <span>Total applications count</span>
+                </div>
+                <div class="flex items-center text-sm text-gray-700">
+                    <i class="fas fa-check text-zambian-green mr-2"></i>
+                    <span>Status distribution</span>
+                </div>
+                <div class="flex items-center text-sm text-gray-700">
+                    <i class="fas fa-check text-zambian-green mr-2"></i>
+                    <span>Gender statistics</span>
+                </div>
+                <div class="flex items-center text-sm text-gray-700">
+                    <i class="fas fa-check text-zambian-green mr-2"></i>
+                    <span>Top districts</span>
+                </div>
+            </div>
+            <a href="{% url 'applications:summary_report' %}" 
+               class="block w-full px-4 py-2 bg-zambian-green text-white text-center rounded-md hover:bg-green-700 transition-colors">
+                <i class="fas fa-file-alt mr-2"></i>Generate Report
+            </a>
+        </div>
+
+        <!-- Detailed Report -->
+        <div class="bg-white rounded-lg shadow-md p-6 card-hover scale-up" style="animation-delay: 0.1s">
+            <div class="flex items-center justify-center w-16 h-16 bg-zambian-orange rounded-full mx-auto mb-4">
+                <i class="fas fa-table text-white text-2xl"></i>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-900 text-center mb-3">Detailed Report</h2>
+            <p class="text-gray-600 text-center mb-6">
+                Complete application data with advanced filtering and export options
+            </p>
+            <div class="space-y-2 mb-6">
+                <div class="flex items-center text-sm text-gray-700">
+                    <i class="fas fa-check text-zambian-orange mr-2"></i>
+                    <span>All application details</span>
+                </div>
+                <div class="flex items-center text-sm text-gray-700">
+                    <i class="fas fa-check text-zambian-orange mr-2"></i>
+                    <span>Filter by status, type, date</span>
+                </div>
+                <div class="flex items-center text-sm text-gray-700">
+                    <i class="fas fa-check text-zambian-orange mr-2"></i>
+                    <span>Export to CSV</span>
+                </div>
+                <div class="flex items-center text-sm text-gray-700">
+                    <i class="fas fa-check text-zambian-orange mr-2"></i>
+                    <span>Searchable data</span>
+                </div>
+            </div>
+            <a href="{% url 'applications:detailed_report' %}" 
+               class="block w-full px-4 py-2 bg-zambian-orange text-white text-center rounded-md hover:bg-orange-600 transition-colors">
+                <i class="fas fa-file-excel mr-2"></i>Generate Report
+            </a>
+        </div>
+
+        <!-- Exception Report -->
+        <div class="bg-white rounded-lg shadow-md p-6 card-hover scale-up" style="animation-delay: 0.2s">
+            <div class="flex items-center justify-center w-16 h-16 bg-zambian-red rounded-full mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle text-white text-2xl"></i>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-900 text-center mb-3">Exception Report</h2>
+            <p class="text-gray-600 text-center mb-6">
+                Identify applications with issues, anomalies, or requiring attention
+            </p>
+            <div class="space-y-2 mb-6">
+                <div class="flex items-center text-sm text-gray-700">
+                    <i class="fas fa-check text-zambian-red mr-2"></i>
+                    <span>Old pending applications</span>
+                </div>
+                <div class="flex items-center text-sm text-gray-700">
+                    <i class="fas fa-check text-zambian-red mr-2"></i>
+                    <span>Missing NRC numbers</span>
+                </div>
+                <div class="flex items-center text-sm text-gray-700">
+                    <i class="fas fa-check text-zambian-red mr-2"></i>
+                    <span>Multiple applications</span>
+                </div>
+                <div class="flex items-center text-sm text-gray-700">
+                    <i class="fas fa-check text-zambian-red mr-2"></i>
+                    <span>Missing rejection reasons</span>
+                </div>
+            </div>
+            <a href="{% url 'applications:exception_report' %}" 
+               class="block w-full px-4 py-2 bg-zambian-red text-white text-center rounded-md hover:bg-red-700 transition-colors">
+                <i class="fas fa-bug mr-2"></i>Generate Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Info -->
+    <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6 slide-in-left">
+        <h3 class="text-lg font-semibold text-blue-900 mb-3">
+            <i class="fas fa-info-circle mr-2"></i>Report Information
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
+            <div>
+                <p class="font-semibold mb-2">Export Options:</p>
+                <ul class="space-y-1">
+                    <li>• View reports online</li>
+                    <li>• Export to CSV format</li>
+                    <li>• Print-friendly layouts</li>
+                </ul>
+            </div>
+            <div>
+                <p class="font-semibold mb-2">Features:</p>
+                <ul class="space-y-1">
+                    <li>• Real-time data</li>
+                    <li>• Date range filtering</li>
+                    <li>• Customizable views</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="mt-6">
+        <a href="{% url 'applications:admin_dashboard' %}" 
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

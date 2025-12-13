@@ -1,0 +1,218 @@
+/* iOS Installation Prompt Styles */
+
+.ios-install-prompt {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 10000;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    padding: 20px;
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+.ios-install-prompt.show {
+    transform: translateY(0);
+}
+
+.ios-install-content {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    max-width: 500px;
+    margin: 0 auto;
+    position: relative;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.ios-install-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #f3f4f6;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #6b7280;
+    transition: all 0.2s;
+}
+
+.ios-install-close:hover {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.ios-install-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #00A651, #00c96b);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    box-shadow: 0 4px 12px rgba(0, 166, 81, 0.3);
+}
+
+.ios-install-icon i {
+    font-size: 28px;
+    color: white;
+}
+
+.ios-install-content h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 8px;
+    text-align: center;
+}
+
+.ios-install-content > p {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0 0 20px;
+    text-align: center;
+}
+
+.ios-install-steps {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.ios-step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.ios-step:last-child {
+    margin-bottom: 0;
+}
+
+.ios-step-number {
+    width: 24px;
+    height: 24px;
+    background: #00A651;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-right: 12px;
+}
+
+.ios-step p {
+    margin: 0;
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.5;
+    padding-top: 2px;
+}
+
+.ios-step i {
+    color: #00A651;
+    margin: 0 4px;
+}
+
+.ios-step strong {
+    color: #111827;
+    font-weight: 600;
+}
+
+.ios-install-dismiss {
+    width: 100%;
+    background: #00A651;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.ios-install-dismiss:hover {
+    background: #008a44;
+}
+
+.ios-install-dismiss:active {
+    transform: scale(0.98);
+}
+
+/* Dark mode support */
+[data-theme="dark"] .ios-install-content {
+    background: #1f2937;
+}
+
+[data-theme="dark"] .ios-install-content h3 {
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .ios-install-content > p {
+    color: #d1d5db;
+}
+
+[data-theme="dark"] .ios-install-steps {
+    background: #111827;
+}
+
+[data-theme="dark"] .ios-step p {
+    color: #d1d5db;
+}
+
+[data-theme="dark"] .ios-step strong {
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .ios-install-close {
+    background: #374151;
+    color: #d1d5db;
+}
+
+[data-theme="dark"] .ios-install-close:hover {
+    background: #4b5563;
+}
+
+/* Animation */
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .ios-install-prompt {
+        padding: 16px;
+    }
+    
+    .ios-install-content {
+        padding: 20px;
+    }
+    
+    .ios-install-content h3 {
+        font-size: 18px;
+    }
+    
+    .ios-step p {
+        font-size: 13px;
+    }
+}
