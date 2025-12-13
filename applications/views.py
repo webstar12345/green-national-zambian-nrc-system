@@ -11,13 +11,20 @@ from .models import NRCApplication
 from .forms import NRCApplicationForm, NRCReplacementForm, AdminApplicationForm
 from .nrc_generator import generate_nrc_card
 
-@login_required
 def home(request):
-    user_applications = NRCApplication.objects.filter(user=request.user)[:5]
+    """Public landing page - no login required"""
+    user_applications = None
+    if request.user.is_authenticated:
+        user_applications = NRCApplication.objects.filter(user=request.user)[:5]
+    
     context = {
         'user_applications': user_applications,
     }
     return render(request, 'applications/home.html', context)
+
+def landing(request):
+    """Enhanced landing page showcasing all features"""
+    return render(request, 'applications/landing.html')
 
 def about_us(request):
     """About Us page"""

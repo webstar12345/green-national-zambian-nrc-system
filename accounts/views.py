@@ -174,6 +174,26 @@ def google_otp_verify(request):
     return render(request, 'accounts/google_otp_verify.html', {'email': email})
 
 
+def otp_verify(request):
+    """General OTP verification view"""
+    if request.method == 'POST':
+        otp_code = request.POST.get('otp_code', '').strip()
+        
+        if not request.user.is_authenticated:
+            messages.error(request, 'Please log in first.')
+            return redirect('account_login')
+        
+        user = request.user
+        
+        # Verify OTP
+        if user.verify_otp(otp_code):
+            messages.success(request, 'OTP verified successfully!')
+            return redirect('applications:home')
+        else:
+            messages.error(request, 'Invalid or expired OTP code. Please try again.')
+    
+    return render(request, 'accounts/otp_verify.html')
+
 def resend_otp(request):
     """Resend OTP code"""
     email = request.session.get('pending_google_email')

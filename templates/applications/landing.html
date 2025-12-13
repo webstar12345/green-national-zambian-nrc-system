@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome to Zambian NRC System - Apply Online{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Features Showcase -->
+<div class="bg-gradient-to-br from-zambian-green via-green-600 to-zambian-orange text-white py-20 rounded-lg mb-8 relative overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.1"><circle cx="30" cy="30" r="4"/></g></svg>');"></div>
+    </div>
+    
+    <div class="relative text-center max-w-4xl mx-auto px-4">
+        <div class="mb-6">
+            <i class="fas fa-id-card text-6xl mb-4 animate-bounce"></i>
+        </div>
+        <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+            Welcome to the Future of 
+            <span class="text-zambian-orange">NRC Applications</span>
+        </h1>
+        <p class="text-xl md:text-2xl mb-8 opacity-90">
+            Apply for your National Registration Card online - Fast, Secure, and Convenient
+        </p>
+        
+        <!-- Feature Highlights -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4">
+                <i class="fas fa-robot text-3xl mb-2"></i>
+                <p class="text-sm font-semibold">AI Assistant</p>
+            </div>
+            <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4">
+                <i class="fas fa-moon text-3xl mb-2"></i>
+                <p class="text-sm font-semibold">Dark Mode</p>
+            </div>
+            <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4">
+                <i class="fas fa-mobile-alt text-3xl mb-2"></i>
+                <p class="text-sm font-semibold">PWA Ready</p>
+            </div>
+            <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4">
+                <i class="fas fa-shield-alt text-3xl mb-2"></i>
+                <p class="text-sm font-semibold">OTP Security</p>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+            {% if user.is_authenticated %}
+                <a href="{% url 'applications:apply' %}" class="bg-zambian-orange hover:bg-orange-600 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 shadow-2xl">
+                    <i class="fas fa-plus mr-2"></i>Apply for New NRC
+                </a>
+                <a href="{% url 'applications:my_applications' %}" class="bg-white text-zambian-green hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 shadow-2xl">
+                    <i class="fas fa-list mr-2"></i>My Applications
+                </a>
+            {% else %}
+                <a href="{% url 'account_signup' %}" class="bg-zambian-orange hover:bg-orange-600 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 shadow-2xl">
+                    <i class="fas fa-user-plus mr-2"></i>Get Started - Sign Up
+                </a>
+                <a href="{% url 'account_login' %}" class="bg-white text-zambian-green hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 shadow-2xl">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Login
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Features Showcase -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+    <!-- AI Assistant Feature -->
+    <div class="bg-gradient-to-br from-blue-500 to-purple-600 text-white p-6 rounded-xl shadow-lg transform hover:scale-105 transition-all">
+        <div class="text-center">
+            <i class="fas fa-robot text-4xl mb-4"></i>
+            <h3 class="text-xl font-bold mb-2">AI Assistant</h3>
+            <p class="text-sm opacity-90 mb-4">Get instant help in multiple languages with our smart AI assistant</p>
+            {% if user.is_authenticated %}
+                <button onclick="document.getElementById('chatToggle').click()" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                    Try Now
+                </button>
+            {% else %}
+                <a href="{% url 'account_login' %}" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-block">
+                    Login to Try
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Dark Mode Feature -->
+    <div class="bg-gradient-to-br from-gray-800 to-black text-white p-6 rounded-xl shadow-lg transform hover:scale-105 transition-all">
+        <div class="text-center">
+            <i class="fas fa-moon text-4xl mb-4"></i>
+            <h3 class="text-xl font-bold mb-2">Dark Mode</h3>
+            <p class="text-sm opacity-90 mb-4">Switch between light and dark themes for comfortable viewing</p>
+            <button onclick="toggleDarkMode()" class="bg-white text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                Toggle Now
+            </button>
+        </div>
+    </div>
+
+    <!-- PWA Feature -->
+    <div class="bg-gradient-to-br from-green-500 to-teal-600 text-white p-6 rounded-xl shadow-lg transform hover:scale-105 transition-all">
+        <div class="text-center">
+            <i class="fas fa-mobile-alt text-4xl mb-4"></i>
+            <h3 class="text-xl font-bold mb-2">Mobile App</h3>
+            <p class="text-sm opacity-90 mb-4">Install as an app on your phone for easy access anywhere</p>
+            <button onclick="showInstallPrompt()" class="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                Install App
+            </button>
+        </div>
+    </div>
+
+    <!-- Security Feature -->
+    <div class="bg-gradient-to-br from-red-500 to-pink-600 text-white p-6 rounded-xl shadow-lg transform hover:scale-105 transition-all">
+        <div class="text-center">
+            <i class="fas fa-shield-alt text-4xl mb-4"></i>
+            <h3 class="text-xl font-bold mb-2">OTP Security</h3>
+            <p class="text-sm opacity-90 mb-4">Advanced security with email verification and OTP codes</p>
+            <div class="bg-white text-red-600 px-4 py-2 rounded-lg font-semibold">
+                Secure Login
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Section -->
+<div class="bg-white rounded-xl shadow-lg p-8 mb-12">
+    <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">Trusted by Thousands</h2>
+        <p class="text-gray-600">Join the digital revolution in NRC applications</p>
+    </div>
+    
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="text-center">
+            <div class="text-4xl font-bold text-zambian-green mb-2">10K+</div>
+            <div class="text-gray-600">Applications Processed</div>
+        </div>
+        <div class="text-center">
+            <div class="text-4xl font-bold text-zambian-orange mb-2">95%</div>
+            <div class="text-gray-600">Success Rate</div>
+        </div>
+        <div class="text-center">
+            <div class="text-4xl font-bold text-zambian-red mb-2">24/7</div>
+            <div class="text-gray-600">Available</div>
+        </div>
+        <div class="text-center">
+            <div class="text-4xl font-bold text-zambian-green mb-2">15min</div>
+            <div class="text-gray-600">Average Time</div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works -->
+<div class="bg-gradient-to-r from-zambian-green to-green-600 text-white rounded-xl p-8 mb-12">
+    <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold mb-2">How It Works</h2>
+        <p class="text-xl opacity-90">Simple steps to get your NRC online</p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-2xl font-bold">1</span>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Sign Up</h3>
+            <p class="opacity-90">Create your account with email verification</p>
+        </div>
+        
+        <div class="text-center">
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-2xl font-bold">2</span>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Apply Online</h3>
+            <p class="opacity-90">Fill the form and upload documents</p>
+        </div>
+        
+        <div class="text-center">
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-2xl font-bold">3</span>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Get Approved</h3>
+            <p class="opacity-90">Wait for admin review and approval</p>
+        </div>
+        
+        <div class="text-center">
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-2xl font-bold">4</span>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Collect NRC</h3>
+            <p class="opacity-90">Pick up your NRC at selected location</p>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div class="text-center bg-gray-50 rounded-xl p-8">
+    <h2 class="text-3xl font-bold text-gray-900 mb-4">Ready to Get Started?</h2>
+    <p class="text-xl text-gray-600 mb-8">Join thousands of satisfied users who chose the modern way</p>
+    
+    {% if not user.is_authenticated %}
+        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <a href="{% url 'account_signup' %}" class="bg-zambian-green hover:bg-green-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 shadow-lg">
+                <i class="fas fa-user-plus mr-2"></i>Create Account
+            </a>
+            <a href="{% url 'account_login' %}" class="bg-zambian-orange hover:bg-orange-600 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 shadow-lg">
+                <i class="fas fa-sign-in-alt mr-2"></i>Login
+            </a>
+        </div>
+    {% else %}
+        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <a href="{% url 'applications:apply' %}" class="bg-zambian-green hover:bg-green-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 shadow-lg">
+                <i class="fas fa-plus mr-2"></i>Apply for New NRC
+            </a>
+            <a href="{% url 'applications:apply_replacement' %}" class="bg-zambian-orange hover:bg-orange-600 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 shadow-lg">
+                <i class="fas fa-sync-alt mr-2"></i>Apply for Replacement
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+// PWA Install Prompt
+function showInstallPrompt() {
+    if (window.deferredPrompt) {
+        window.deferredPrompt.prompt();
+    } else {
+        alert('This app can be installed on mobile devices. Look for "Add to Home Screen" in your browser menu.');
+    }
+}
+
+// Dark Mode Toggle
+function toggleDarkMode() {
+    if (typeof window.toggleDarkMode === 'function') {
+        window.toggleDarkMode();
+    } else {
+        document.body.classList.toggle('dark-mode');
+    }
+}
+</script>
+{% endblock %}
