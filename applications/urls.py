@@ -13,6 +13,7 @@ urlpatterns = [
     path('my-applications/', views.my_applications, name='my_applications'),
     path('application/<int:pk>/', views.application_detail, name='application_detail'),
     path('application/<int:pk>/nrc-card/', views.view_nrc_card, name='view_nrc_card'),
+    path('application/<int:pk>/signature/', views.signature_pad, name='signature_pad'),
     
     # Admin URLs
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),

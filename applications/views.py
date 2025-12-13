@@ -10,6 +10,9 @@ import csv
 from .models import NRCApplication
 from .forms import NRCApplicationForm, NRCReplacementForm, AdminApplicationForm
 from .nrc_generator import generate_nrc_card
+import base64
+from django.core.files.base import ContentFile
+from io import BytesIO
 
 def home(request):
     """Public landing page - no login required"""
@@ -145,6 +148,47 @@ def view_nrc_card(request, pk):
         return redirect('applications:application_detail', pk=pk)
     
     return render(request, 'applications/nrc_card.html', {'application': application})
+
+@login_required
+def signature_pad(request, pk):
+    """Digital signature pad for touchscreen devices"""
+    application = get_object_or_404(NRCApplication, pk=pk, user=request.user)
+    
+    # Only allow signature if application is approved
+    if application.status != 'approved':
+        messages.error(request, 'You can only add a signature after your application is approved.')
+        return redirect('applications:application_detail', pk=pk)
+    
+    if request.method == 'POST':
+        signature_data = request.POST.get('signature_data')
+        
+        if signature_data:
+            try:
+                # Remove data URL prefix if present
+                if signature_data.startswith('data:image/png;base64,'):
+                    signature_data = signature_data.replace('data:image/png;base64,', '')
+                
+                # Save signature to application
+                application.digital_signature = signature_data
+                application.save()
+                
+                # Regenerate NRC card with new signature
+                front_path, back_path, nrc_number = generate_nrc_card(application)
+                application.nrc_front_image = front_path
+                application.nrc_back_image = back_path
+                application.nrc_number = nrc_number
+                application.nrc_generated_at = timezone.now()
+                application.save()
+                
+                messages.success(request, 'Your digital signature has been saved and your NRC card has been updated!')
+                return redirect('applications:view_nrc_card', pk=pk)
+                
+            except Exception as e:
+                messages.error(request, f'Error saving signature: {str(e)}')
+        else:
+            messages.error(request, 'Please provide a signature before saving.')
+    
+    return render(request, 'applications/signature_pad.html', {'application': application})
 
 def is_admin(user):
     return user.is_staff or user.is_superuser

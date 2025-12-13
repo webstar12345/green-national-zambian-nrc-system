@@ -33,12 +33,24 @@
                 <div>
                     <h3 class="text-xl font-bold mb-1">Your NRC Card is Ready!</h3>
                     <p class="text-sm opacity-90">NRC Number: {{ application.nrc_number }}</p>
+                    {% if application.digital_signature %}
+                        <p class="text-xs opacity-75"><i class="fas fa-signature mr-1"></i>Digital signature added</p>
+                    {% else %}
+                        <p class="text-xs opacity-75"><i class="fas fa-exclamation-triangle mr-1"></i>Add your digital signature</p>
+                    {% endif %}
                 </div>
             </div>
-            <a href="{% url 'applications:view_nrc_card' application.pk %}" 
-               class="bg-white text-zambian-green px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors shadow-md">
-                <i class="fas fa-eye mr-2"></i>View My NRC Card
-            </a>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <a href="{% url 'applications:signature_pad' application.pk %}" 
+                   class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-md text-center">
+                    <i class="fas fa-signature mr-2"></i>
+                    {% if application.digital_signature %}Update{% else %}Add{% endif %} Signature
+                </a>
+                <a href="{% url 'applications:view_nrc_card' application.pk %}" 
+                   class="bg-white text-zambian-green px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors shadow-md text-center">
+                    <i class="fas fa-eye mr-2"></i>View NRC Card
+                </a>
+            </div>
         </div>
     </div>
     {% endif %}

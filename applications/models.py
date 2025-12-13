@@ -60,6 +60,9 @@ class NRCApplication(models.Model):
     nrc_back_image = models.CharField(max_length=255, blank=True, null=True)
     nrc_generated_at = models.DateTimeField(blank=True, null=True)
     
+    # Digital Signature
+    digital_signature = models.TextField(blank=True, null=True, help_text='Base64 encoded signature image')
+    
     def __str__(self):
         return f"{self.user.get_full_name()} - {self.application_type} - {self.status}"
     
