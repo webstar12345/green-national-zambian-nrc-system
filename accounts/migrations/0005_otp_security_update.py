@@ -1,4 +1,4 @@
-# New OTP fields migration
+# OTP Security Fields Migration
 from django.db import migrations, models
 
 
@@ -9,20 +9,20 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # These operations are safe and will work even if fields exist
+        # Safe operations that won't fail if fields already exist
         migrations.AlterField(
             model_name='customuser',
             name='otp_code',
-            field=models.CharField(max_length=6, blank=True, null=True, default=None, editable=False, verbose_name="OTP Code"),
+            field=models.CharField(max_length=6, blank=True, null=True, default=None, editable=False),
         ),
         migrations.AlterField(
             model_name='customuser',
             name='otp_created_at',
-            field=models.DateTimeField(blank=True, null=True, default=None, editable=False, verbose_name="OTP Created At"),
+            field=models.DateTimeField(blank=True, null=True, default=None, editable=False),
         ),
         migrations.AlterField(
             model_name='customuser',
             name='otp_verified',
-            field=models.BooleanField(default=False, editable=False, verbose_name="OTP Verified"),
+            field=models.BooleanField(default=False, editable=False),
         ),
     ]
