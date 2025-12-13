@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NRC Zambia - Verification Code</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #00A651, #228B22);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px 20px;
+            border-radius: 0 0 10px 10px;
+        }
+        .otp-code {
+            background: #00A651;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            letter-spacing: 8px;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+        .button {
+            display: inline-block;
+            background: #00A651;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🆔 NRC ZAMBIA</div>
+        <p>National Registration Card System</p>
+    </div>
+    
+    <div class="content">
+        <h2>Verification Code Required</h2>
+        
+        <p>Hello {{ user_name }},</p>
+        
+        <p>You are receiving this email because you requested access to your NRC Zambia account. To complete the verification process, please use the following code:</p>
+        
+        <div class="otp-code">{{ otp_code }}</div>
+        
+        <p><strong>This verification code will expire in 10 minutes.</strong></p>
+        
+        <div class="warning">
+            <strong>⚠️ Security Notice:</strong>
+            <ul>
+                <li>Never share this code with anyone</li>
+                <li>NRC Zambia staff will never ask for this code</li>
+                <li>If you didn't request this code, please ignore this email</li>
+            </ul>
+        </div>
+        
+        <p>If you're having trouble, you can:</p>
+        <ul>
+            <li>Request a new code if this one expires</li>
+            <li>Contact our support team for assistance</li>
+            <li>Visit our help center for more information</li>
+        </ul>
+        
+        <p>Thank you for using NRC Zambia's secure online system.</p>
+        
+        <p>Best regards,<br>
+        <strong>NRC Zambia Team</strong></p>
+    </div>
+    
+    <div class="footer">
+        <p>This is an automated message from NRC Zambia System</p>
+        <p>© 2024 Republic of Zambia - National Registration Department</p>
+    </div>
+</body>
+</html>

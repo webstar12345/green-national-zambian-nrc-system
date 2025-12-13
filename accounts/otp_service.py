@@ -20,13 +20,18 @@ class OTPService:
     
     @staticmethod
     def send_otp_email(email, otp_code, user_name=None):
-        """Send OTP code via email"""
-        subject = 'NRC Zambia - Login Verification Code'
+        """Send OTP code via email with HTML template"""
+        from django.core.mail import EmailMultiAlternatives
+        from django.template.loader import render_to_string
+        from django.conf import settings
         
-        message = f"""
+        subject = 'NRC Zambia - Verification Code'
+        
+        # Plain text version
+        text_message = f"""
 Hello {user_name or 'User'},
 
-Your verification code for NRC Zambia login is: {otp_code}
+Your verification code for NRC Zambia is: {otp_code}
 
 This code will expire in 10 minutes.
 
@@ -36,15 +41,31 @@ Best regards,
 NRC Zambia Team
         """
         
+        # HTML version
         try:
-            send_mail(
+            html_message = render_to_string('accounts/otp_email.html', {
+                'user_name': user_name or 'User',
+                'otp_code': otp_code,
+            })
+        except Exception as e:
+            print(f"Failed to render HTML template: {e}")
+            html_message = None
+        
+        try:
+            # Create email with both text and HTML versions
+            email_msg = EmailMultiAlternatives(
                 subject,
-                message,
+                text_message,
                 settings.DEFAULT_FROM_EMAIL,
-                [email],
-                fail_silently=False,
+                [email]
             )
+            
+            if html_message:
+                email_msg.attach_alternative(html_message, "text/html")
+            
+            email_msg.send(fail_silently=False)
             return True
+            
         except Exception as e:
             print(f"Failed to send OTP email: {e}")
             return False

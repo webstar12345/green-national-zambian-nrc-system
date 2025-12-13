@@ -36,6 +36,11 @@ def services(request):
 
 @login_required
 def apply_nrc(request):
+    # Double-check authentication (redundant but safe)
+    if not request.user.is_authenticated:
+        messages.info(request, 'Please log in to apply for an NRC.')
+        return redirect('accounts:login')
+    
     # Check if user already has a new NRC application
     existing_new_application = NRCApplication.objects.filter(
         user=request.user, 
@@ -62,6 +67,11 @@ def apply_nrc(request):
 
 @login_required
 def apply_replacement(request):
+    # Double-check authentication (redundant but safe)
+    if not request.user.is_authenticated:
+        messages.info(request, 'Please log in to apply for an NRC replacement.')
+        return redirect('accounts:login')
+        
     if request.method == 'POST':
         form = NRCReplacementForm(request.POST, request.FILES)
         if form.is_valid():

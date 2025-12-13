@@ -1,24 +1,83 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
+from django.contrib.auth import get_user_model
 from .forms import CustomUserCreationForm, UserProfileForm
+from .otp_service import OTPService
+
+User = get_user_model()
 
 class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
     redirect_authenticated_user = True
+    
+    def form_valid(self, form):
+        """Override to add OTP verification step"""
+        username = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password')
+        
+        # Authenticate user
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            # Generate and send OTP
+            otp_code = user.generate_otp()
+            success = OTPService.send_otp_email(
+                user.email, 
+                otp_code, 
+                user.get_full_name() or user.username
+            )
+            
+            if success:
+                # Store user info in session for OTP verification
+                self.request.session['pending_login_user_id'] = user.id
+                self.request.session['pending_login_email'] = user.email
+                
+                messages.success(
+                    self.request, 
+                    f'OTP verification code sent to {user.email}. Please check your email.'
+                )
+                return redirect('accounts:otp_verify')
+            else:
+                messages.error(self.request, 'Failed to send OTP email. Please try again.')
+                return self.form_invalid(form)
+        
+        return super().form_valid(form)
 
 class SignUpView(CreateView):
     form_class = CustomUserCreationForm
     template_name = 'accounts/signup.html'
-    success_url = reverse_lazy('applications:home')
+    success_url = reverse_lazy('accounts:otp_verify')
 
     def form_valid(self, form):
+        """Override to add OTP verification step after signup"""
+        # Save user but don't log them in yet
         response = super().form_valid(form)
-        login(self.request, self.object)
+        user = self.object
+        
+        # Generate and send OTP for email verification
+        otp_code = user.generate_otp()
+        success = OTPService.send_otp_email(
+            user.email, 
+            otp_code, 
+            user.get_full_name() or user.username
+        )
+        
+        if success:
+            # Store user info in session for OTP verification
+            self.request.session['pending_signup_user_id'] = user.id
+            self.request.session['pending_signup_email'] = user.email
+            
+            messages.success(
+                self.request, 
+                f'Account created! OTP verification code sent to {user.email}. Please verify to complete registration.'
+            )
+        else:
+            messages.error(self.request, 'Account created but failed to send verification email. Please contact support.')
+        
         return response
 
 
@@ -175,50 +234,122 @@ def google_otp_verify(request):
 
 
 def otp_verify(request):
-    """General OTP verification view"""
+    """Enhanced OTP verification for both login and signup"""
     if request.method == 'POST':
         otp_code = request.POST.get('otp_code', '').strip()
         
-        if not request.user.is_authenticated:
-            messages.error(request, 'Please log in first.')
-            return redirect('account_login')
+        # Check for pending login verification
+        pending_login_user_id = request.session.get('pending_login_user_id')
+        pending_signup_user_id = request.session.get('pending_signup_user_id')
         
-        user = request.user
+        user = None
+        verification_type = None
+        
+        if pending_login_user_id:
+            try:
+                user = User.objects.get(id=pending_login_user_id)
+                verification_type = 'login'
+            except User.DoesNotExist:
+                messages.error(request, 'Invalid session. Please try logging in again.')
+                return redirect('accounts:login')
+                
+        elif pending_signup_user_id:
+            try:
+                user = User.objects.get(id=pending_signup_user_id)
+                verification_type = 'signup'
+            except User.DoesNotExist:
+                messages.error(request, 'Invalid session. Please try signing up again.')
+                return redirect('accounts:signup')
+        else:
+            messages.error(request, 'No pending verification. Please log in or sign up first.')
+            return redirect('accounts:login')
         
         # Verify OTP
-        if user.verify_otp(otp_code):
-            messages.success(request, 'OTP verified successfully!')
-            return redirect('applications:home')
+        if user and user.verify_otp(otp_code):
+            if verification_type == 'login':
+                # Complete login process
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                
+                # Clear session data
+                request.session.pop('pending_login_user_id', None)
+                request.session.pop('pending_login_email', None)
+                
+                messages.success(request, f'Welcome back, {user.get_full_name() or user.username}!')
+                return redirect('applications:home')
+                
+            elif verification_type == 'signup':
+                # Complete signup process
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                
+                # Clear session data
+                request.session.pop('pending_signup_user_id', None)
+                request.session.pop('pending_signup_email', None)
+                
+                messages.success(request, f'Welcome to NRC Zambia, {user.get_full_name() or user.username}! Your account has been verified.')
+                return redirect('applications:home')
         else:
             messages.error(request, 'Invalid or expired OTP code. Please try again.')
     
-    return render(request, 'accounts/otp_verify.html')
+    # Determine context for template
+    context = {
+        'verification_type': 'login' if request.session.get('pending_login_user_id') else 'signup',
+        'email': request.session.get('pending_login_email') or request.session.get('pending_signup_email')
+    }
+    
+    return render(request, 'accounts/otp_verify.html', context)
 
 def resend_otp(request):
-    """Resend OTP code"""
-    email = request.session.get('pending_google_email')
-    user_id = request.session.get('pending_google_user_id')
+    """Resend OTP code for login or signup verification"""
+    # Check for pending verification
+    pending_login_user_id = request.session.get('pending_login_user_id')
+    pending_signup_user_id = request.session.get('pending_signup_user_id')
+    pending_google_email = request.session.get('pending_google_email')
     
-    if not email:
-        messages.error(request, 'Session expired. Please try logging in again.')
+    user = None
+    redirect_url = 'accounts:otp_verify'
+    
+    if pending_login_user_id:
+        try:
+            user = User.objects.get(id=pending_login_user_id)
+        except User.DoesNotExist:
+            messages.error(request, 'Invalid session. Please try logging in again.')
+            return redirect('accounts:login')
+    elif pending_signup_user_id:
+        try:
+            user = User.objects.get(id=pending_signup_user_id)
+        except User.DoesNotExist:
+            messages.error(request, 'Invalid session. Please try signing up again.')
+            return redirect('accounts:signup')
+    elif pending_google_email:
+        # Handle Google OAuth OTP resend
+        user_id = request.session.get('pending_google_user_id')
+        try:
+            if user_id:
+                user = User.objects.get(pk=user_id)
+            else:
+                user = User.objects.get(email=pending_google_email)
+            redirect_url = 'accounts:google_otp_verify'
+        except User.DoesNotExist:
+            messages.error(request, 'User not found.')
+            return redirect('accounts:login')
+    else:
+        messages.error(request, 'No pending verification. Please log in or sign up first.')
         return redirect('accounts:login')
     
-    from .models import CustomUser
-    try:
-        if user_id:
-            user = CustomUser.objects.get(pk=user_id)
-        else:
-            user = CustomUser.objects.get(email=email)
-        
+    if user:
         # Generate new OTP
         otp_code = user.generate_otp()
         
         # Send email
-        send_otp_email(user.email, otp_code)
+        success = OTPService.send_otp_email(
+            user.email, 
+            otp_code, 
+            user.get_full_name() or user.username
+        )
         
-        messages.success(request, 'New OTP code sent to your email!')
+        if success:
+            messages.success(request, f'New OTP code sent to {user.email}!')
+        else:
+            messages.error(request, 'Failed to send OTP email. Please try again.')
     
-    except CustomUser.DoesNotExist:
-        messages.error(request, 'User not found.')
-    
-    return redirect('accounts:google_otp_verify')
+    return redirect(redirect_url)
