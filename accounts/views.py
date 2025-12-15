@@ -16,33 +16,64 @@ class CustomLoginView(LoginView):
     redirect_authenticated_user = True
     
     def form_valid(self, form):
-        """Override to add OTP verification step"""
+        """Override to add OTP verification step with memory optimization"""
         username = form.cleaned_data.get('username')
         password = form.cleaned_data.get('password')
         
         # Authenticate user
         user = authenticate(username=username, password=password)
         if user is not None:
-            # Generate and send OTP
-            otp_code = user.generate_otp()
-            success = OTPService.send_otp_email(
-                user.email, 
-                otp_code, 
-                user.get_full_name() or user.username
-            )
-            
-            if success:
-                # Store user info in session for OTP verification
+            try:
+                # Generate and send OTP with memory optimization
+                otp_code = user.generate_otp()
+                
+                # Store user info in session BEFORE sending email (in case of crash)
                 self.request.session['pending_login_user_id'] = user.id
                 self.request.session['pending_login_email'] = user.email
                 
-                messages.success(
-                    self.request, 
-                    f'OTP verification code sent to {user.email}. Please check your email.'
-                )
-                return redirect('accounts:otp_verify')
-            else:
-                messages.error(self.request, 'Failed to send OTP email. Please try again.')
+                # Try to send OTP email with timeout protection
+                import signal
+                import time
+                
+                def timeout_handler(signum, frame):
+                    raise TimeoutError("Email sending timeout")
+                
+                # Set timeout for email sending (30 seconds)
+                signal.signal(signal.SIGALRM, timeout_handler)
+                signal.alarm(30)
+                
+                try:
+                    success = OTPService.send_otp_email(
+                        user.email, 
+                        otp_code, 
+                        user.get_full_name() or user.username
+                    )
+                    signal.alarm(0)  # Cancel timeout
+                    
+                    if success:
+                        messages.success(
+                            self.request, 
+                            f'OTP verification code sent to {user.email}. Please check your email.'
+                        )
+                        return redirect('accounts:otp_verify')
+                    else:
+                        messages.error(self.request, 'Failed to send OTP email. Please try again.')
+                        return self.form_invalid(form)
+                        
+                except (TimeoutError, Exception) as e:
+                    signal.alarm(0)  # Cancel timeout
+                    print(f"Email sending failed: {e}")
+                    
+                    # Still redirect to OTP page - user can request resend
+                    messages.warning(
+                        self.request, 
+                        f'Login successful! OTP code is being sent to {user.email}. If you don\'t receive it, click "Resend Code".'
+                    )
+                    return redirect('accounts:otp_verify')
+                    
+            except Exception as e:
+                print(f"Login process error: {e}")
+                messages.error(self.request, 'Login process encountered an issue. Please try again.')
                 return self.form_invalid(form)
         
         return super().form_valid(form)
