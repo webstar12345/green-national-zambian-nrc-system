@@ -144,16 +144,21 @@ LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'applications:home'
 LOGOUT_REDIRECT_URL = 'accounts:login'
 
-# Email
-if DEBUG:
+# Email Configuration
+# Load email settings from .env file
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+
+# Choose email backend based on configuration
+if DEBUG and not EMAIL_HOST_PASSWORD:
+    # Use console backend only if no SMTP password is configured
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
+    # Use SMTP backend if password is configured (works in both debug and production)
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
-    EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-    EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-    EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@zambiannrc.gov.zm')
 PASSWORD_RESET_TIMEOUT = 86400

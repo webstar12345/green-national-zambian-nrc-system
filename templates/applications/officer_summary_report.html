@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Summary Report - Zambian NRC System{% endblock %}
+{% block title %}Officer Summary Report - Zambian NRC System{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto fade-in-scroll">
@@ -9,31 +9,11 @@
             <h1 class="text-3xl font-bold text-gray-900 mb-2">Summary Report</h1>
             <p class="text-gray-600">Overview statistics and trends</p>
         </div>
-        <div class="flex space-x-2">
-            <div class="dropdown relative">
-                <button class="px-4 py-2 bg-zambian-green text-white rounded-md hover:bg-green-700 transition-colors dropdown-toggle" 
-                        onclick="toggleDropdown('exportDropdown')">
-                    <i class="fas fa-download mr-2"></i>Export <i class="fas fa-chevron-down ml-1"></i>
-                </button>
-                <div id="exportDropdown" class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 hidden">
-                    <a href="?export=csv{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" 
-                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <i class="fas fa-file-csv mr-2 text-green-600"></i>Export as CSV
-                    </a>
-                    <a href="?export=pdf{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" 
-                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <i class="fas fa-file-pdf mr-2 text-red-600"></i>Export as PDF
-                    </a>
-                    <a href="?export=excel{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" 
-                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <i class="fas fa-file-excel mr-2 text-green-600"></i>Export as Excel
-                    </a>
-                    <a href="?export=word{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" 
-                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <i class="fas fa-file-word mr-2 text-blue-600"></i>Export as Word
-                    </a>
-                </div>
-            </div>
+        <div class="flex space-x-3">
+            <a href="?export=csv{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" 
+               class="px-4 py-2 bg-zambian-green text-white rounded-md hover:bg-green-700 transition-colors">
+                <i class="fas fa-download mr-2"></i>Export CSV
+            </a>
             <button onclick="window.print()" 
                     class="px-4 py-2 bg-zambian-orange text-white rounded-md hover:bg-orange-600 transition-colors">
                 <i class="fas fa-print mr-2"></i>Print
@@ -57,7 +37,7 @@
             <button type="submit" class="px-6 py-2 bg-zambian-green text-white rounded-md hover:bg-green-700 transition-colors">
                 <i class="fas fa-filter mr-2"></i>Filter
             </button>
-            <a href="{% url 'applications:summary_report' %}" class="px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+            <a href="{% url 'applications:officer_summary_report' %}" class="px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
                 <i class="fas fa-times mr-2"></i>Clear
             </a>
         </form>
@@ -113,7 +93,6 @@
             </div>
         </div>
     </div>
-
     <!-- Application Types & Gender -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div class="bg-white rounded-lg shadow-md p-6">
@@ -191,50 +170,28 @@
     </div>
 
     <!-- Additional Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div class="bg-white rounded-lg shadow-md p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-2">Recent Activity</h3>
             <p class="text-3xl font-bold text-zambian-green">{{ recent_applications }}</p>
             <p class="text-sm text-gray-600">Applications in last 30 days</p>
         </div>
 
+        {% if avg_processing_time %}
         <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Total Users</h3>
-            <p class="text-3xl font-bold text-zambian-orange">{{ total_users }}</p>
-            <p class="text-sm text-gray-600">Registered users</p>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Avg Processing Time</h3>
+            <p class="text-3xl font-bold text-zambian-orange">{{ avg_processing_time }}</p>
+            <p class="text-sm text-gray-600">Days to process</p>
         </div>
-
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Active Users</h3>
-            <p class="text-3xl font-bold text-zambian-red">{{ active_users }}</p>
-            <p class="text-sm text-gray-600">Active accounts</p>
-        </div>
+        {% endif %}
     </div>
 
     <!-- Back Button -->
     <div class="flex justify-start">
-        <a href="{% url 'applications:admin_reports' %}" 
+        <a href="{% url 'applications:officer_dashboard' %}" 
            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-            <i class="fas fa-arrow-left mr-2"></i>Back to Reports
+            <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
         </a>
     </div>
 </div>
-{% endblock %}
-{% block extra_js %}
-<script>
-function toggleDropdown(dropdownId) {
-    const dropdown = document.getElementById(dropdownId);
-    dropdown.classList.toggle('hidden');
-}
-
-// Close dropdown when clicking outside
-document.addEventListener('click', function(event) {
-    const dropdowns = document.querySelectorAll('.dropdown-menu');
-    dropdowns.forEach(dropdown => {
-        if (!dropdown.closest('.dropdown').contains(event.target)) {
-            dropdown.classList.add('hidden');
-        }
-    });
-});
-</script>
 {% endblock %}

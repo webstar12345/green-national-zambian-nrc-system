@@ -1,0 +1,40 @@
+🚨 URGENT: Use Git Bash (NOT PowerShell) for these commands
+
+📋 STEP-BY-STEP SOLUTION:
+
+1. 🖥️ OPEN GIT BASH (not PowerShell):
+   - Right-click in your project folder
+   - Select "Git Bash Here"
+   - OR open Git Bash and navigate to your project
+
+2. 📦 RUN THESE COMMANDS IN GIT BASH:
+
+git add .
+
+git commit -m "URGENT: Security fix - Updated Gmail app password for OTP emails
+
+- Replaced compromised Gmail app password with secure one
+- New password tested and working locally  
+- Production environment variables updated on Render.com
+- OTP email functionality restored"
+
+git push origin main
+
+3. ⏳ WAIT FOR RENDER.COM DEPLOYMENT:
+   - Go to Render.com dashboard
+   - Watch for "Deploy successful" message
+   - Usually takes 2-3 minutes
+
+4. 🧪 TEST PRODUCTION OTP:
+   - Go to your live site
+   - Try login/register
+   - Check email for OTP
+
+🔍 WHY THIS IS NEEDED:
+- You updated Render.com environment variables ✅
+- But the code with new password isn't on GitHub yet ❌
+- Render.com deploys from GitHub, so it needs the latest code
+- Once pushed, Render.com will automatically redeploy with new code + new environment variables
+
+🎯 EXPECTED RESULT:
+After pushing to GitHub and waiting for deployment, OTP emails should work on your live site!

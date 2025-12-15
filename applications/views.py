@@ -334,7 +334,24 @@ def admin_user_detail(request, user_id):
 @user_passes_test(is_admin)
 def admin_reports(request):
     """Main reports page with options"""
-    return render(request, 'applications/admin_reports.html')
+    from .reports_service import ReportsService
+    
+    # Get basic stats for the reports overview
+    stats = ReportsService.get_dashboard_stats()
+    
+    # Get recent exceptions count
+    exceptions = ReportsService.get_exception_report_data()
+    critical_exceptions = len([e for e in exceptions if e['severity'] == 'Critical'])
+    high_exceptions = len([e for e in exceptions if e['severity'] == 'High'])
+    
+    context = {
+        **stats,
+        'total_exceptions': len(exceptions),
+        'critical_exceptions': critical_exceptions,
+        'high_exceptions': high_exceptions,
+    }
+    
+    return render(request, 'applications/admin_reports.html', context)
 
 @user_passes_test(is_admin)
 def summary_report(request):
@@ -396,28 +413,17 @@ def summary_report(request):
         'date_to': date_to,
     }
     
-    # Export to CSV if requested
-    if request.GET.get('export') == 'csv':
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="summary_report.csv"'
+    # Handle export requests
+    export_format = request.GET.get('export')
+    if export_format in ['csv', 'pdf', 'excel', 'word']:
+        from .reports_service import ReportsService
         
-        writer = csv.writer(response)
-        writer.writerow(['Summary Report', f'Generated on {timezone.now().strftime("%Y-%m-%d %H:%M")}'])
-        writer.writerow([])
-        writer.writerow(['Metric', 'Count'])
-        writer.writerow(['Total Applications', total_applications])
-        writer.writerow(['New Applications', new_applications])
-        writer.writerow(['Replacement Applications', replacement_applications])
-        writer.writerow(['Pending', pending_count])
-        writer.writerow(['Approved', approved_count])
-        writer.writerow(['Rejected', rejected_count])
-        writer.writerow(['Male Applicants', male_count])
-        writer.writerow(['Female Applicants', female_count])
-        writer.writerow(['Recent (30 days)', recent_applications])
-        writer.writerow(['Total Users', total_users])
-        writer.writerow(['Active Users', active_users])
-        
-        return response
+        if export_format == 'csv':
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="summary_report.csv"'
+            return ReportsService.export_to_csv(context, 'summary', response)
+        else:
+            return ReportsService.get_export_response(context, 'summary', export_format)
     
     return render(request, 'applications/summary_report.html', context)
 
@@ -447,35 +453,22 @@ def detailed_report(request):
     # Get unique districts for filter
     districts = NRCApplication.objects.values_list('district', flat=True).distinct().order_by('district')
     
-    # Export to CSV if requested
-    if request.GET.get('export') == 'csv':
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="detailed_report.csv"'
+    # Handle export requests
+    export_format = request.GET.get('export')
+    if export_format in ['csv', 'pdf', 'excel', 'word']:
+        from .reports_service import ReportsService
         
-        writer = csv.writer(response)
-        writer.writerow([
-            'Application ID', 'Applicant Name', 'Email', 'Type', 'Status',
-            'Village', 'District', 'Sex', 'Date of Birth', 'NRC Number',
-            'Date Applied', 'Last Updated'
-        ])
-        
-        for app in applications:
-            writer.writerow([
-                f"#{app.id:05d}",
-                app.user.get_full_name(),
-                app.user.email,
-                app.get_application_type_display(),
-                app.get_status_display(),
-                app.village,
-                app.district,
-                'Male' if app.sex == 'M' else 'Female',
-                app.date_of_birth.strftime('%Y-%m-%d'),
-                app.nrc_number or 'Not Generated',
-                app.created_at.strftime('%Y-%m-%d %H:%M'),
-                app.updated_at.strftime('%Y-%m-%d %H:%M'),
-            ])
-        
-        return response
+        if export_format == 'csv':
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="detailed_report.csv"'
+            return ReportsService.export_to_csv(applications, 'detailed', response)
+        else:
+            # For non-CSV exports, we need the full data context
+            context_data = {
+                'total_applications': applications.count(),
+                'applications': applications,
+            }
+            return ReportsService.get_export_response(context_data, 'detailed', export_format, applications=applications)
     
     # Pagination
     paginator = Paginator(applications, 50)
@@ -566,31 +559,21 @@ def exception_report(request):
             'days_pending': (timezone.now() - app.updated_at).days
         })
     
-    # Export to CSV if requested
-    if request.GET.get('export') == 'csv':
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="exception_report.csv"'
+    # Handle export requests
+    export_format = request.GET.get('export')
+    if export_format in ['csv', 'pdf', 'excel', 'word']:
+        from .reports_service import ReportsService
         
-        writer = csv.writer(response)
-        writer.writerow([
-            'Application ID', 'Applicant Name', 'Issue Type', 'Description',
-            'Severity', 'Days Pending', 'Status', 'Date Applied'
-        ])
-        
-        for exc in exceptions:
-            app = exc['application']
-            writer.writerow([
-                f"#{app.id:05d}",
-                app.user.get_full_name(),
-                exc['issue_type'],
-                exc['description'],
-                exc['severity'],
-                exc['days_pending'],
-                app.get_status_display(),
-                app.created_at.strftime('%Y-%m-%d %H:%M'),
-            ])
-        
-        return response
+        if export_format == 'csv':
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="exception_report.csv"'
+            return ReportsService.export_to_csv(exceptions, 'exceptions', response)
+        else:
+            context_data = {
+                'exceptions': exceptions,
+                'total_exceptions': len(exceptions),
+            }
+            return ReportsService.get_export_response(context_data, 'exceptions', export_format, exceptions=exceptions)
     
     context = {
         'exceptions': exceptions,
@@ -598,6 +581,104 @@ def exception_report(request):
     }
     
     return render(request, 'applications/exception_report.html', context)
+
+
+# Officer Dashboard and Reports
+@login_required
+def officer_dashboard(request):
+    """Officer dashboard with limited reporting capabilities"""
+    from .reports_service import ReportsService
+    
+    # Basic stats
+    stats = ReportsService.get_dashboard_stats()
+    
+    # Officer-specific metrics
+    recent_applications = NRCApplication.objects.order_by('-created_at')[:10]
+    
+    # Performance metrics
+    performance = ReportsService.get_performance_metrics()
+    
+    context = {
+        **stats,
+        'recent_applications': recent_applications,
+        'monthly_data': performance['monthly_data'][:6],  # Last 6 months
+        'processing_rate': performance['processing_rate'],
+    }
+    
+    return render(request, 'applications/officer_dashboard.html', context)
+
+
+@login_required
+def officer_summary_report(request):
+    """Officer summary report with basic statistics"""
+    from .reports_service import ReportsService
+    
+    # Date filters
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+    
+    # Convert string dates to date objects
+    if date_from:
+        date_from = datetime.strptime(date_from, '%Y-%m-%d').date()
+    if date_to:
+        date_to = datetime.strptime(date_to, '%Y-%m-%d').date()
+    
+    # Get report data (limited for officers)
+    context = ReportsService.get_summary_report_data(date_from, date_to)
+    
+    # Remove sensitive data for officers
+    context['is_officer_view'] = True
+    
+    # Export to CSV
+    if request.GET.get('export') == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="officer_summary_report.csv"'
+        return ReportsService.export_to_csv(context, 'summary', response)
+    
+    return render(request, 'applications/officer_summary_report.html', context)
+
+
+@login_required
+def officer_applications_report(request):
+    """Officer applications report with basic filtering"""
+    from .reports_service import ReportsService
+    
+    # Filters (limited for officers)
+    filters = {
+        'status': request.GET.get('status', ''),
+        'type': request.GET.get('type', ''),
+        'date_from': request.GET.get('date_from'),
+        'date_to': request.GET.get('date_to'),
+    }
+    
+    # Remove empty filters
+    filters = {k: v for k, v in filters.items() if v}
+    
+    # Get filtered applications
+    applications = ReportsService.get_detailed_report_data(filters)
+    
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(applications, 25)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'status_filter': request.GET.get('status', ''),
+        'type_filter': request.GET.get('type', ''),
+        'date_from': request.GET.get('date_from', ''),
+        'date_to': request.GET.get('date_to', ''),
+        'is_officer_view': True,
+    }
+    
+    # Export to CSV (limited data for officers)
+    if request.GET.get('export') == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="officer_applications_report.csv"'
+        return ReportsService.export_to_csv(applications, 'detailed', response)
+    
+    return render(request, 'applications/officer_applications_report.html', context)
 
 
 # AI Assistant Views

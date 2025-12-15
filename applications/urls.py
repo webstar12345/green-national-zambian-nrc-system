@@ -28,6 +28,11 @@ urlpatterns = [
     path('dashboard/reports/detailed/', views.detailed_report, name='detailed_report'),
     path('dashboard/reports/exceptions/', views.exception_report, name='exception_report'),
     
+    # Officer Dashboard URLs
+    path('officer-dashboard/', views.officer_dashboard, name='officer_dashboard'),
+    path('officer-reports/summary/', views.officer_summary_report, name='officer_summary_report'),
+    path('officer-reports/applications/', views.officer_applications_report, name='officer_applications_report'),
+    
     # AI Assistant URLs
     path('api/chat/', views.chat_message, name='chat_message'),
     path('api/quick-responses/', views.get_quick_responses, name='quick_responses'),

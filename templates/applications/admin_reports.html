@@ -9,6 +9,46 @@
         <p class="text-gray-600">Generate and export various reports for analysis and monitoring</p>
     </div>
 
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-zambian-green">
+            <div class="flex items-center">
+                <i class="fas fa-file-alt text-zambian-green text-2xl mr-3"></i>
+                <div>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_applications }}</p>
+                    <p class="text-sm text-gray-600">Total Applications</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-yellow-500">
+            <div class="flex items-center">
+                <i class="fas fa-clock text-yellow-500 text-2xl mr-3"></i>
+                <div>
+                    <p class="text-2xl font-bold text-gray-900">{{ pending_applications }}</p>
+                    <p class="text-sm text-gray-600">Pending</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-red-500">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-triangle text-red-500 text-2xl mr-3"></i>
+                <div>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_exceptions }}</p>
+                    <p class="text-sm text-gray-600">Exceptions</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-green-500">
+            <div class="flex items-center">
+                <i class="fas fa-check text-green-500 text-2xl mr-3"></i>
+                <div>
+                    <p class="text-2xl font-bold text-gray-900">{{ approved_applications }}</p>
+                    <p class="text-sm text-gray-600">Approved</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Report Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Summary Report -->
@@ -39,9 +79,23 @@
                 </div>
             </div>
             <a href="{% url 'applications:summary_report' %}" 
-               class="block w-full px-4 py-2 bg-zambian-green text-white text-center rounded-md hover:bg-green-700 transition-colors">
+               class="block w-full px-4 py-2 bg-zambian-green text-white text-center rounded-md hover:bg-green-700 transition-colors mb-2">
                 <i class="fas fa-file-alt mr-2"></i>Generate Report
             </a>
+            <div class="flex gap-1">
+                <a href="{% url 'applications:summary_report' %}?export=pdf" 
+                   class="flex-1 px-2 py-1 bg-red-600 text-white text-center rounded text-xs hover:bg-red-700 transition-colors">
+                    <i class="fas fa-file-pdf mr-1"></i>PDF
+                </a>
+                <a href="{% url 'applications:summary_report' %}?export=excel" 
+                   class="flex-1 px-2 py-1 bg-green-600 text-white text-center rounded text-xs hover:bg-green-700 transition-colors">
+                    <i class="fas fa-file-excel mr-1"></i>Excel
+                </a>
+                <a href="{% url 'applications:summary_report' %}?export=word" 
+                   class="flex-1 px-2 py-1 bg-blue-600 text-white text-center rounded text-xs hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-file-word mr-1"></i>Word
+                </a>
+            </div>
         </div>
 
         <!-- Detailed Report -->
@@ -72,9 +126,23 @@
                 </div>
             </div>
             <a href="{% url 'applications:detailed_report' %}" 
-               class="block w-full px-4 py-2 bg-zambian-orange text-white text-center rounded-md hover:bg-orange-600 transition-colors">
-                <i class="fas fa-file-excel mr-2"></i>Generate Report
+               class="block w-full px-4 py-2 bg-zambian-orange text-white text-center rounded-md hover:bg-orange-600 transition-colors mb-2">
+                <i class="fas fa-table mr-2"></i>Generate Report
             </a>
+            <div class="flex gap-1">
+                <a href="{% url 'applications:detailed_report' %}?export=pdf" 
+                   class="flex-1 px-2 py-1 bg-red-600 text-white text-center rounded text-xs hover:bg-red-700 transition-colors">
+                    <i class="fas fa-file-pdf mr-1"></i>PDF
+                </a>
+                <a href="{% url 'applications:detailed_report' %}?export=excel" 
+                   class="flex-1 px-2 py-1 bg-green-600 text-white text-center rounded text-xs hover:bg-green-700 transition-colors">
+                    <i class="fas fa-file-excel mr-1"></i>Excel
+                </a>
+                <a href="{% url 'applications:detailed_report' %}?export=word" 
+                   class="flex-1 px-2 py-1 bg-blue-600 text-white text-center rounded text-xs hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-file-word mr-1"></i>Word
+                </a>
+            </div>
         </div>
 
         <!-- Exception Report -->
@@ -105,9 +173,23 @@
                 </div>
             </div>
             <a href="{% url 'applications:exception_report' %}" 
-               class="block w-full px-4 py-2 bg-zambian-red text-white text-center rounded-md hover:bg-red-700 transition-colors">
-                <i class="fas fa-bug mr-2"></i>Generate Report
+               class="block w-full px-4 py-2 bg-zambian-red text-white text-center rounded-md hover:bg-red-700 transition-colors mb-2">
+                <i class="fas fa-exclamation-triangle mr-2"></i>Generate Report
             </a>
+            <div class="flex gap-1">
+                <a href="{% url 'applications:exception_report' %}?export=pdf" 
+                   class="flex-1 px-2 py-1 bg-red-600 text-white text-center rounded text-xs hover:bg-red-700 transition-colors">
+                    <i class="fas fa-file-pdf mr-1"></i>PDF
+                </a>
+                <a href="{% url 'applications:exception_report' %}?export=excel" 
+                   class="flex-1 px-2 py-1 bg-green-600 text-white text-center rounded text-xs hover:bg-green-700 transition-colors">
+                    <i class="fas fa-file-excel mr-1"></i>Excel
+                </a>
+                <a href="{% url 'applications:exception_report' %}?export=word" 
+                   class="flex-1 px-2 py-1 bg-blue-600 text-white text-center rounded text-xs hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-file-word mr-1"></i>Word
+                </a>
+            </div>
         </div>
     </div>
 
