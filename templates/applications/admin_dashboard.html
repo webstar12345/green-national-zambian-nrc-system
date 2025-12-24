@@ -60,6 +60,49 @@
         </div>
     </div>
 
+    <!-- Admin Notifications -->
+    {% if admin_notifications %}
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-900">
+                <i class="fas fa-bell text-zambian-green mr-2"></i>Recent Notifications
+                {% if unread_admin_notifications_count > 0 %}
+                <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full ml-2">{{ unread_admin_notifications_count }}</span>
+                {% endif %}
+            </h2>
+            <a href="{% url 'applications:notifications' %}" class="text-zambian-green hover:text-green-700 font-medium">
+                View All →
+            </a>
+        </div>
+        
+        <div class="space-y-3">
+            {% for notification in admin_notifications %}
+            <div class="flex items-start p-3 {% if not notification.is_read %}bg-blue-50 border-l-4 border-blue-400{% else %}bg-gray-50{% endif %} rounded-lg">
+                <div class="flex-shrink-0 mr-3">
+                    <i class="fas fa-{% if notification.notification_type == 'new_application_submitted' %}file-plus{% else %}bell{% endif %} 
+                       text-{% if not notification.is_read %}blue-500{% else %}gray-400{% endif %}"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 {% if not notification.is_read %}font-bold{% endif %}">
+                        {{ notification.title }}
+                    </p>
+                    <p class="text-sm text-gray-600 mt-1">{{ notification.message|truncatewords:20 }}</p>
+                    <div class="flex items-center justify-between mt-2">
+                        <p class="text-xs text-gray-500">{{ notification.created_at|timesince }} ago</p>
+                        {% if notification.application %}
+                        <a href="{% url 'applications:admin_application_detail' notification.application.pk %}" 
+                           class="text-xs text-zambian-green hover:text-green-700 font-medium">
+                            Review Application →
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Quick Actions -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div class="bg-white rounded-lg shadow-md p-6">
@@ -86,6 +129,12 @@
                    class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                     <i class="fas fa-chart-bar text-zambian-black mr-3"></i>
                     <span class="font-medium">Generate Reports</span>
+                </a>
+                <a href="{% url 'applications:duplication_check' %}" 
+                   class="flex items-center p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors border border-red-200">
+                    <i class="fas fa-shield-alt text-red-600 mr-3"></i>
+                    <span class="font-medium text-red-700">Check for Duplicates</span>
+                    <span class="ml-auto bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">Security</span>
                 </a>
             </div>
         </div>

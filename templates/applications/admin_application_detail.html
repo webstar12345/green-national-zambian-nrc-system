@@ -84,14 +84,23 @@
                 {% if application.photo %}
                 <div class="mt-4">
                     <label class="block text-sm font-medium text-gray-500 mb-2">Applicant Photo</label>
-                    <div class="flex items-center">
-                        <img src="{{ application.photo.url }}" alt="Applicant Photo" 
-                             class="w-24 h-24 object-cover rounded-lg border border-gray-300">
-                        <a href="{{ application.photo.url }}" target="_blank" 
-                           class="ml-4 text-zambian-green hover:text-green-700 text-sm">
-                            <i class="fas fa-external-link-alt mr-1"></i>View Full Size
-                        </a>
-                    </div>
+                    {% if application.photo %}
+                        <div class="flex items-center">
+                            <img src="{{ application.photo.url }}" alt="Applicant Photo" 
+                                 class="w-24 h-24 object-cover rounded-lg border border-gray-300">
+                            <a href="{{ application.photo.url }}" target="_blank" 
+                               class="ml-4 text-zambian-green hover:text-green-700 text-sm">
+                                <i class="fas fa-external-link-alt mr-1"></i>View Full Size
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="flex items-center justify-center w-24 h-24 bg-gray-100 rounded-lg border border-gray-300">
+                            <div class="text-center">
+                                <i class="fas fa-user text-gray-400 text-2xl mb-1"></i>
+                                <p class="text-xs text-gray-500">No photo</p>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
                 {% endif %}
             </div>
@@ -194,40 +203,106 @@
                     <i class="fas fa-file-alt text-zambian-black mr-2"></i>Documents
                 </h2>
                 <div class="space-y-3">
+                    <!-- Birth Certificate -->
                     <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div class="flex items-center">
                             <i class="fas fa-file-pdf text-red-500 mr-2"></i>
                             <span class="text-sm font-medium">Birth Certificate</span>
                         </div>
-                        <a href="{{ application.birth_certificate.url }}" target="_blank" 
-                           class="text-zambian-green hover:text-green-700 text-sm">
-                            <i class="fas fa-external-link-alt mr-1"></i>View
-                        </a>
+                        {% if application.birth_certificate %}
+                            <a href="{{ application.birth_certificate.url }}" target="_blank" 
+                               class="text-zambian-green hover:text-green-700 text-sm">
+                                <i class="fas fa-external-link-alt mr-1"></i>View
+                            </a>
+                        {% else %}
+                            <span class="text-gray-400 text-sm">
+                                <i class="fas fa-times mr-1"></i>Not uploaded
+                            </span>
+                        {% endif %}
                     </div>
+                    
+                    <!-- Under Five Card -->
                     <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div class="flex items-center">
                             <i class="fas fa-file-pdf text-red-500 mr-2"></i>
                             <span class="text-sm font-medium">Under Five Card</span>
                         </div>
-                        <a href="{{ application.under_five_card.url }}" target="_blank" 
-                           class="text-zambian-green hover:text-green-700 text-sm">
-                            <i class="fas fa-external-link-alt mr-1"></i>View
-                        </a>
+                        {% if application.under_five_card %}
+                            <a href="{{ application.under_five_card.url }}" target="_blank" 
+                               class="text-zambian-green hover:text-green-700 text-sm">
+                                <i class="fas fa-external-link-alt mr-1"></i>View
+                            </a>
+                        {% else %}
+                            <span class="text-gray-400 text-sm">
+                                <i class="fas fa-times mr-1"></i>Not uploaded
+                            </span>
+                        {% endif %}
                     </div>
-                    {% if application.old_nrc %}
+                    <!-- Old NRC (for replacement applications) -->
+                    {% if application.application_type == 'replacement' %}
                     <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div class="flex items-center">
                             <i class="fas fa-file-pdf text-red-500 mr-2"></i>
                             <span class="text-sm font-medium">Old NRC</span>
                         </div>
-                        <a href="{{ application.old_nrc.url }}" target="_blank" 
-                           class="text-zambian-green hover:text-green-700 text-sm">
-                            <i class="fas fa-external-link-alt mr-1"></i>View
-                        </a>
+                        {% if application.old_nrc %}
+                            <a href="{{ application.old_nrc.url }}" target="_blank" 
+                               class="text-zambian-green hover:text-green-700 text-sm">
+                                <i class="fas fa-external-link-alt mr-1"></i>View
+                            </a>
+                        {% else %}
+                            <span class="text-gray-400 text-sm">
+                                <i class="fas fa-times mr-1"></i>Not uploaded
+                            </span>
+                        {% endif %}
                     </div>
                     {% endif %}
                 </div>
             </div>
+
+            <!-- NRC Card Downloads -->
+            {% if application.status == 'approved' and application.nrc_front_image and application.nrc_back_image %}
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-id-card text-zambian-green mr-2"></i>Generated NRC Card
+                </h2>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                            <div>
+                                <span class="text-sm font-medium text-green-900">NRC Number: {{ application.nrc_number }}</span>
+                                <p class="text-xs text-green-700">Generated on: {{ application.nrc_generated_at|date:"M d, Y g:i A" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <a href="{% url 'applications:admin_download_nrc_front' application.pk %}" 
+                           class="flex items-center justify-center px-4 py-2 bg-zambian-orange text-white rounded-md hover:bg-orange-600 transition-colors text-sm">
+                            <i class="fas fa-download mr-2"></i>Download Front
+                        </a>
+                        
+                        <a href="{% url 'applications:admin_download_nrc_back' application.pk %}" 
+                           class="flex items-center justify-center px-4 py-2 bg-zambian-red text-white rounded-md hover:bg-red-700 transition-colors text-sm">
+                            <i class="fas fa-download mr-2"></i>Download Back
+                        </a>
+                        
+                        <a href="{% url 'applications:admin_download_nrc_both' application.pk %}" 
+                           class="flex items-center justify-center px-4 py-2 bg-zambian-black text-white rounded-md hover:bg-gray-800 transition-colors text-sm">
+                            <i class="fas fa-file-archive mr-2"></i>Download Both
+                        </a>
+                    </div>
+                    
+                    <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <p class="text-xs text-blue-700">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Admin downloads include applicant name in filename for better organization.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
 
             <!-- Application Timeline -->
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -265,10 +340,15 @@
         </div>
     </div>
 
-    <div class="mt-6 flex justify-start">
+    <div class="mt-6 flex justify-start space-x-3">
         <a href="{% url 'applications:admin_applications' %}" 
            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
             <i class="fas fa-arrow-left mr-2"></i>Back to Applications
+        </a>
+        <a href="{% url 'applications:admin_dashboard' %}" 
+           class="inline-flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors shadow-sm">
+            <i class="fas fa-tachometer-alt mr-2"></i>
+            Back to Admin Dashboard
         </a>
     </div>
 </div>

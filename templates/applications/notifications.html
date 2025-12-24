@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications - Zambian NRC System{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto fade-in-scroll">
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Your Notifications</h1>
+            <p class="text-gray-600">Stay updated with your application status and system updates</p>
+        </div>
+        {% if unread_count > 0 %}
+        <a href="{% url 'applications:mark_all_notifications_read' %}" 
+           class="px-4 py-2 bg-zambian-green text-white rounded-lg hover:bg-green-700 transition-colors">
+            <i class="fas fa-check-double mr-2"></i>Mark All as Read
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Unread Count -->
+    {% if unread_count > 0 %}
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div class="flex items-center">
+            <i class="fas fa-bell text-blue-600 text-xl mr-3"></i>
+            <div>
+                <p class="text-blue-900 font-semibold">You have {{ unread_count }} unread notification{{ unread_count|pluralize }}</p>
+                <p class="text-blue-700 text-sm">Click on notifications to mark them as read</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Notifications List -->
+    <div class="space-y-4">
+        {% for notification in page_obj %}
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 
+                    {% if not notification.is_read %}border-zambian-green bg-green-50
+                    {% elif notification.notification_type == 'application_approved' %}border-green-500
+                    {% elif notification.notification_type == 'application_rejected' %}border-red-500
+                    {% elif notification.notification_type == 'nrc_ready' %}border-blue-500
+                    {% else %}border-gray-300{% endif %} 
+                    card-hover">
+            
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center mb-2">
+                        {% if notification.notification_type == 'application_approved' %}
+                            <i class="fas fa-check-circle text-green-600 text-xl mr-3"></i>
+                        {% elif notification.notification_type == 'application_rejected' %}
+                            <i class="fas fa-times-circle text-red-600 text-xl mr-3"></i>
+                        {% elif notification.notification_type == 'nrc_ready' %}
+                            <i class="fas fa-id-card text-blue-600 text-xl mr-3"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle text-gray-600 text-xl mr-3"></i>
+                        {% endif %}
+                        
+                        <h3 class="text-lg font-semibold text-gray-900">{{ notification.title }}</h3>
+                        
+                        {% if not notification.is_read %}
+                        <span class="ml-3 px-2 py-1 bg-zambian-green text-white text-xs rounded-full">New</span>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="text-gray-700 mb-3">{{ notification.message }}</p>
+                    
+                    <div class="flex items-center text-sm text-gray-500">
+                        <i class="fas fa-clock mr-1"></i>
+                        <span>{{ notification.created_at|date:"M d, Y g:i A" }}</span>
+                        
+                        {% if notification.application %}
+                        <span class="mx-2">•</span>
+                        <i class="fas fa-file-alt mr-1"></i>
+                        <span>Application #{{ notification.application.id|stringformat:"05d" }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="ml-4 flex flex-col space-y-2">
+                    {% if not notification.is_read %}
+                    <a href="{% url 'applications:mark_notification_read' notification.id %}" 
+                       class="px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700 transition-colors">
+                        <i class="fas fa-check mr-1"></i>Mark Read
+                    </a>
+                    {% endif %}
+                    
+                    {% if notification.application and notification.notification_type == 'nrc_ready' %}
+                    <!-- NRC Ready - Priority Actions -->
+                    <a href="{% url 'applications:view_nrc_card' notification.application.pk %}" 
+                       class="px-4 py-2 bg-zambian-green text-white rounded-lg text-sm font-bold hover:bg-green-700 transition-colors shadow-lg">
+                        <i class="fas fa-eye mr-1"></i>View NRC Card
+                    </a>
+                    <a href="{% url 'applications:download_nrc_both' notification.application.pk %}" 
+                       class="px-4 py-2 bg-zambian-orange text-white rounded-lg text-sm font-bold hover:bg-orange-600 transition-colors shadow-lg">
+                        <i class="fas fa-download mr-1"></i>Download Now
+                    </a>
+                    
+                    {% elif notification.application and notification.notification_type == 'application_approved' %}
+                    <!-- Application Approved Actions -->
+                    {% if notification.application.nrc_front_image %}
+                    <a href="{% url 'applications:view_nrc_card' notification.application.pk %}" 
+                       class="px-4 py-2 bg-zambian-orange text-white rounded-lg text-sm font-bold hover:bg-orange-600 transition-colors shadow-lg">
+                        <i class="fas fa-download mr-1"></i>Download NRC
+                    </a>
+                    {% endif %}
+                    {% if user.is_staff or user.is_superuser %}
+                    <a href="{% url 'applications:admin_application_detail' notification.application.pk %}" 
+                       class="px-3 py-1 bg-zambian-green text-white rounded text-sm hover:bg-green-700 transition-colors">
+                        <i class="fas fa-eye mr-1"></i>Review Application
+                    </a>
+                    {% else %}
+                    <a href="{% url 'applications:application_detail' notification.application.pk %}" 
+                       class="px-3 py-1 bg-zambian-green text-white rounded text-sm hover:bg-green-700 transition-colors">
+                        <i class="fas fa-eye mr-1"></i>View Details
+                    </a>
+                    {% endif %}
+                    
+                    {% elif notification.application %}
+                    <!-- Other Notifications -->
+                    {% if user.is_staff or user.is_superuser %}
+                    <a href="{% url 'applications:admin_application_detail' notification.application.pk %}" 
+                       class="px-3 py-1 bg-zambian-green text-white rounded text-sm hover:bg-green-700 transition-colors">
+                        <i class="fas fa-eye mr-1"></i>Review Application
+                    </a>
+                    {% else %}
+                    <a href="{% url 'applications:application_detail' notification.application.pk %}" 
+                       class="px-3 py-1 bg-zambian-green text-white rounded text-sm hover:bg-green-700 transition-colors">
+                        <i class="fas fa-eye mr-1"></i>View Application
+                    </a>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-lg shadow-md p-12 text-center">
+            <i class="fas fa-bell-slash text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-2xl font-semibold text-gray-900 mb-2">No Notifications</h3>
+            <p class="text-gray-600">You don't have any notifications yet. We'll notify you when there are updates to your applications.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="mt-8 flex justify-center">
+        <nav class="flex items-center space-x-2">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" 
+                   class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-chevron-left mr-1"></i>Previous
+                </a>
+            {% endif %}
+            
+            <span class="px-3 py-2 text-sm text-gray-700">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" 
+                   class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    Next<i class="fas fa-chevron-right ml-1"></i>
+                </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+
+    <!-- Back Button -->
+    <div class="mt-8">
+        <a href="{% url 'applications:home' %}" 
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}

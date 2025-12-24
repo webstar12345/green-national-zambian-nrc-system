@@ -75,11 +75,29 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'nrc_system.wsgi.application'
 
-# Database configuration
+# Database configuration with enhanced connection handling
 DATABASE_URL = config('DATABASE_URL', default=None)
 if DATABASE_URL:
-    DATABASES = {'default': dj_database_url.parse(DATABASE_URL)}
+    # Parse database URL with enhanced settings for production
+    DATABASES = {
+        'default': dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,  # Connection pooling
+            ssl_require=True   # Require SSL for security
+        )
+    }
+    
+    # Add PostgreSQL-specific optimizations
+    if 'postgresql' in DATABASE_URL:
+        DATABASES['default'].update({
+            'OPTIONS': {
+                'connect_timeout': 30,
+                'options': '-c default_transaction_isolation=serializable'
+            },
+            'CONN_MAX_AGE': 600,
+        })
 else:
+    # Development fallback
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -198,3 +216,21 @@ SOCIALACCOUNT_PROVIDERS = {
 # Force HTTPS redirect URIs in production (Render fix)
 if not DEBUG:
     os.environ['SOCIALACCOUNT_REDIRECT_IS_HTTPS'] = 'true'
+
+# FORCED GMAIL CONFIGURATION FOR OTP
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'simoongalaurent427@gmail.com'
+EMAIL_HOST_PASSWORD = 'sghuygvzhowzrdmm'
+DEFAULT_FROM_EMAIL = 'simoongalaurent427@gmail.com'
+
+# Override any existing email configuration
+import os
+os.environ['EMAIL_HOST'] = 'smtp.gmail.com'
+os.environ['EMAIL_PORT'] = '587'
+os.environ['EMAIL_USE_TLS'] = 'True'
+os.environ['EMAIL_HOST_USER'] = 'simoongalaurent427@gmail.com'
+os.environ['EMAIL_HOST_PASSWORD'] = 'sghuygvzhowzrdmm'
+os.environ['DEFAULT_FROM_EMAIL'] = 'simoongalaurent427@gmail.com'

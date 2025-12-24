@@ -3,6 +3,112 @@
 {% block title %}Home - Zambian NRC System{% endblock %}
 
 {% block content %}
+<!-- Notification Alerts -->
+{% if user.is_authenticated and unread_notifications %}
+<div class="mb-6">
+    {% for notification in unread_notifications %}
+    <div class="mb-4 p-4 rounded-lg border-l-4 
+                {% if notification.notification_type == 'application_approved' %}bg-green-50 border-green-500
+                {% elif notification.notification_type == 'application_rejected' %}bg-red-50 border-red-500
+                {% elif notification.notification_type == 'nrc_ready' %}bg-blue-50 border-blue-500
+                {% else %}bg-yellow-50 border-yellow-500{% endif %} 
+                shadow-md animate-pulse">
+        <div class="flex items-start justify-between">
+            <div class="flex items-start">
+                {% if notification.notification_type == 'application_approved' %}
+                    <i class="fas fa-check-circle text-green-600 text-2xl mr-3 mt-1"></i>
+                {% elif notification.notification_type == 'application_rejected' %}
+                    <i class="fas fa-times-circle text-red-600 text-2xl mr-3 mt-1"></i>
+                {% elif notification.notification_type == 'nrc_ready' %}
+                    <i class="fas fa-id-card text-blue-600 text-2xl mr-3 mt-1"></i>
+                {% else %}
+                    <i class="fas fa-bell text-yellow-600 text-2xl mr-3 mt-1"></i>
+                {% endif %}
+                
+                <div>
+                    <h3 class="text-lg font-semibold 
+                              {% if notification.notification_type == 'application_approved' %}text-green-900
+                              {% elif notification.notification_type == 'application_rejected' %}text-red-900
+                              {% elif notification.notification_type == 'nrc_ready' %}text-blue-900
+                              {% else %}text-yellow-900{% endif %}">
+                        {{ notification.title }}
+                    </h3>
+                    <p class="text-gray-700 mt-1">{{ notification.message }}</p>
+                    <p class="text-sm text-gray-500 mt-2">
+                        <i class="fas fa-clock mr-1"></i>{{ notification.created_at|date:"M d, Y g:i A" }}
+                    </p>
+                </div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 ml-4">
+                {% if notification.application and notification.notification_type == 'nrc_ready' %}
+                <!-- Special NRC Ready Actions -->
+                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                    <a href="{% url 'applications:view_nrc_card' notification.application.pk %}" 
+                       class="px-4 py-2 bg-zambian-green text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-bold shadow-lg">
+                        <i class="fas fa-eye mr-1"></i>View NRC Card
+                    </a>
+                    <a href="{% url 'applications:download_nrc_both' notification.application.pk %}" 
+                       class="px-4 py-2 bg-zambian-orange text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-bold shadow-lg animate-bounce">
+                        <i class="fas fa-download mr-1"></i>Download Now
+                    </a>
+                </div>
+                
+                {% elif notification.application and notification.notification_type == 'application_approved' %}
+                <!-- Application Approved Actions -->
+                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                    {% if notification.application.nrc_front_image %}
+                    <a href="{% url 'applications:view_nrc_card' notification.application.pk %}" 
+                       class="px-4 py-2 bg-zambian-orange text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-bold shadow-lg">
+                        <i class="fas fa-download mr-1"></i>Download NRC
+                    </a>
+                    {% endif %}
+                    {% if user.is_staff or user.is_superuser %}
+                    <a href="{% url 'applications:admin_application_detail' notification.application.pk %}" 
+                       class="px-4 py-2 bg-zambian-green text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
+                        <i class="fas fa-eye mr-1"></i>Review Application
+                    </a>
+                    {% else %}
+                    <a href="{% url 'applications:application_detail' notification.application.pk %}" 
+                       class="px-4 py-2 bg-zambian-green text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
+                        <i class="fas fa-eye mr-1"></i>View Details
+                    </a>
+                    {% endif %}
+                </div>
+                
+                {% elif notification.application %}
+                <!-- Other Notification Actions -->
+                {% if user.is_staff or user.is_superuser %}
+                <a href="{% url 'applications:admin_application_detail' notification.application.pk %}" 
+                   class="px-4 py-2 bg-zambian-green text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
+                    <i class="fas fa-eye mr-1"></i>Review Application
+                </a>
+                {% else %}
+                <a href="{% url 'applications:application_detail' notification.application.pk %}" 
+                   class="px-4 py-2 bg-zambian-green text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
+                    <i class="fas fa-eye mr-1"></i>View Details
+                </a>
+                {% endif %}
+                {% endif %}
+                
+                <a href="{% url 'applications:mark_notification_read' notification.id %}" 
+                   class="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm">
+                    <i class="fas fa-times"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    
+    <div class="text-center mb-4">
+        <a href="{% url 'applications:notifications' %}" 
+           class="text-zambian-green hover:text-green-700 font-medium">
+            <i class="fas fa-bell mr-1"></i>View All Notifications ({{ unread_notifications.count }})
+        </a>
+    </div>
+</div>
+{% endif %}
+
 <!-- Hero Section -->
 <div class="bg-gradient-to-r from-zambian-green to-green-600 text-white py-16 rounded-lg mb-8">
     <div class="text-center">

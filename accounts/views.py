@@ -16,14 +16,25 @@ class CustomLoginView(LoginView):
     redirect_authenticated_user = True
     
     def form_valid(self, form):
-        """Override to add OTP verification step with memory optimization"""
+        """Override to add OTP verification step with admin bypass"""
         username = form.cleaned_data.get('username')
         password = form.cleaned_data.get('password')
         
         # Authenticate user
         user = authenticate(username=username, password=password)
         if user is not None:
+            # Check if user is admin - bypass OTP for admins
+            if user.is_staff or user.is_superuser:
+                # Admin users bypass OTP verification
+                login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
+                messages.success(
+                    self.request, 
+                    f'Welcome back, {user.get_full_name() or user.username}! (Admin Access)'
+                )
+                return redirect('applications:home')
+            
             try:
+                # Regular users go through OTP verification
                 # Generate and send OTP with memory optimization
                 otp_code = user.generate_otp()
                 
@@ -31,45 +42,61 @@ class CustomLoginView(LoginView):
                 self.request.session['pending_login_user_id'] = user.id
                 self.request.session['pending_login_email'] = user.email
                 
-                # Try to send OTP email with timeout protection
-                import signal
-                import time
+                # Force Gmail email sending - prioritize real emails
+                from django.conf import settings
                 
-                def timeout_handler(signum, frame):
-                    raise TimeoutError("Email sending timeout")
-                
-                # Set timeout for email sending (30 seconds)
-                signal.signal(signal.SIGALRM, timeout_handler)
-                signal.alarm(30)
+                # Try email with enhanced error handling
+                email_success = False
+                email_error = None
                 
                 try:
-                    success = OTPService.send_otp_email(
+                    # Force Gmail settings for this request
+                    settings.EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+                    settings.EMAIL_HOST = 'smtp.gmail.com'
+                    settings.EMAIL_PORT = 587
+                    settings.EMAIL_USE_TLS = True
+                    settings.EMAIL_HOST_USER = 'simoongalaurent427@gmail.com'
+                    settings.EMAIL_HOST_PASSWORD = 'sghuygvzhowzrdmm'
+                    
+                    email_success = OTPService.send_otp_email(
                         user.email, 
                         otp_code, 
                         user.get_full_name() or user.username
                     )
-                    signal.alarm(0)  # Cancel timeout
                     
-                    if success:
-                        messages.success(
-                            self.request, 
-                            f'OTP verification code sent to {user.email}. Please check your email.'
-                        )
-                        return redirect('accounts:otp_verify')
-                    else:
-                        messages.error(self.request, 'Failed to send OTP email. Please try again.')
-                        return self.form_invalid(form)
-                        
-                except (TimeoutError, Exception) as e:
-                    signal.alarm(0)  # Cancel timeout
-                    print(f"Email sending failed: {e}")
+                    if email_success:
+                        print(f"✅ OTP email sent successfully to {user.email}")
                     
-                    # Still redirect to OTP page - user can request resend
-                    messages.warning(
+                except Exception as e:
+                    email_error = str(e)
+                    print(f"❌ Email sending failed: {e}")
+                    email_success = False
+                
+                # Handle based on email success
+                if email_success:
+                    # Real email sent successfully
+                    messages.success(
                         self.request, 
-                        f'Login successful! OTP code is being sent to {user.email}. If you don\'t receive it, click "Resend Code".'
+                        f'OTP verification code sent to {user.email}. Please check your email inbox.'
                     )
-                    return redirect('accounts:otp_verify')
+                else:
+                    # Email failed - show fallback with error details
+                    print(f"\n🔑 FALLBACK OTP FOR {user.email}: {otp_code}")
+                    if email_error:
+                        print(f"📧 Email error: {email_error}")
+                    
+                    if settings.DEBUG:
+                        messages.warning(
+                            self.request, 
+                            f'Email failed ({email_error}). Your OTP code is: {otp_code}'
+                        )
+                    else:
+                        messages.info(
+                            self.request, 
+                            f'Your OTP verification code is: {otp_code}'
+                        )
+                
+                return redirect('accounts:otp_verify')
                     
             except Exception as e:
                 print(f"Login process error: {e}")
@@ -84,30 +111,56 @@ class SignUpView(CreateView):
     success_url = reverse_lazy('accounts:otp_verify')
 
     def form_valid(self, form):
-        """Override to add OTP verification step after signup"""
+        """Override to add OTP verification step after signup (regular users only)"""
         # Save user but don't log them in yet
         response = super().form_valid(form)
         user = self.object
         
+        # Note: New signups are always regular users (not admins)
+        # Admin accounts should be created through Django admin or management commands
+        
         # Generate and send OTP for email verification
         otp_code = user.generate_otp()
-        success = OTPService.send_otp_email(
-            user.email, 
-            otp_code, 
-            user.get_full_name() or user.username
-        )
         
-        if success:
-            # Store user info in session for OTP verification
-            self.request.session['pending_signup_user_id'] = user.id
-            self.request.session['pending_signup_email'] = user.email
-            
+        # Store user info in session for OTP verification
+        self.request.session['pending_signup_user_id'] = user.id
+        self.request.session['pending_signup_email'] = user.email
+        
+        # Smart OTP delivery system
+        from django.conf import settings
+        
+        # Try email first
+        email_success = False
+        try:
+            email_success = OTPService.send_otp_email(
+                user.email, 
+                otp_code, 
+                user.get_full_name() or user.username
+            )
+        except Exception as e:
+            print(f"Signup email failed: {e}")
+            email_success = False
+        
+        # Handle based on email success
+        if email_success:
             messages.success(
                 self.request, 
                 f'Account created! OTP verification code sent to {user.email}. Please verify to complete registration.'
             )
         else:
-            messages.error(self.request, 'Account created but failed to send verification email. Please contact support.')
+            if settings.DEBUG:
+                # Development: Show in console and browser
+                print(f"\n🔑 SIGNUP OTP FOR {user.email}: {otp_code}")
+                messages.info(
+                    self.request, 
+                    f'Account created! Your OTP code is: {otp_code} (Development Mode - also check console)'
+                )
+            else:
+                # Production: Show in browser
+                messages.info(
+                    self.request, 
+                    f'Account created! Your OTP verification code is: {otp_code} (Email service temporarily unavailable)'
+                )
         
         return response
 

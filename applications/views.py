@@ -4,9 +4,12 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from django.utils import timezone
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse, Http404, JsonResponse
 from datetime import datetime, timedelta
 import csv
+import os
+import zipfile
+from django.conf import settings
 from .models import NRCApplication
 from .forms import NRCApplicationForm, NRCReplacementForm, AdminApplicationForm
 from .nrc_generator import generate_nrc_card
@@ -17,11 +20,18 @@ from io import BytesIO
 def home(request):
     """Public landing page - no login required"""
     user_applications = None
+    unread_notifications = None
+    
     if request.user.is_authenticated:
         user_applications = NRCApplication.objects.filter(user=request.user)[:5]
+        
+        # Get unread notifications for the user
+        from .notifications import NotificationService
+        unread_notifications = NotificationService.get_unread_notifications(request.user)
     
     context = {
         'user_applications': user_applications,
+        'unread_notifications': unread_notifications,
     }
     return render(request, 'applications/home.html', context)
 
@@ -55,16 +65,29 @@ def apply_nrc(request):
         return redirect('applications:my_applications')
     
     if request.method == 'POST':
-        form = NRCApplicationForm(request.POST, request.FILES)
+        form = NRCApplicationForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
-            application = form.save(commit=False)
-            application.user = request.user
-            application.application_type = 'new'  # Force new application type
-            application.save()
-            messages.success(request, 'Your NRC application has been submitted successfully!')
-            return redirect('applications:my_applications')
+            try:
+                application = form.save(commit=False)
+                application.user = request.user
+                application.application_type = 'new'  # Force new application type
+                application.save()
+                
+                # Create admin notifications for new application
+                from .notifications import NotificationService
+                try:
+                    admin_notifications = NotificationService.create_new_application_notification(application)
+                    print(f"✅ Created {len(admin_notifications)} admin notifications for new application #{application.id:05d}")
+                except Exception as e:
+                    print(f"❌ Error creating admin notifications: {e}")
+                    # Don't fail the application submission if notification fails
+                
+                messages.success(request, 'Your NRC application has been submitted successfully!')
+                return redirect('applications:my_applications')
+            except Exception as e:
+                messages.error(request, f'Error submitting application: {str(e)}')
     else:
-        form = NRCApplicationForm()
+        form = NRCApplicationForm(user=request.user)
     
     return render(request, 'applications/apply.html', {'form': form})
 
@@ -76,41 +99,54 @@ def apply_replacement(request):
         return redirect('accounts:login')
         
     if request.method == 'POST':
-        form = NRCReplacementForm(request.POST, request.FILES)
+        form = NRCReplacementForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
-            application = form.save(commit=False)
-            application.user = request.user
-            application.application_type = 'replacement'
-            
-            # Copy user's existing information from their profile or first application
-            first_app = NRCApplication.objects.filter(user=request.user, application_type='new').first()
-            if first_app:
-                # Copy information from first application
-                application.village = first_app.village
-                application.district = first_app.district
-                application.date_of_birth = first_app.date_of_birth
-                application.place_of_birth = first_app.place_of_birth
-                application.chief_name = first_app.chief_name
-                application.sex = first_app.sex
-                application.photo = first_app.photo
-                application.mother_full_name = first_app.mother_full_name
-                application.mother_village = first_app.mother_village
-                application.mother_district = first_app.mother_district
-                application.mother_date_of_birth = first_app.mother_date_of_birth
-                application.mother_place_of_birth = first_app.mother_place_of_birth
-                application.mother_chief_name = first_app.mother_chief_name
-                application.father_full_name = first_app.father_full_name
-                application.father_village = first_app.father_village
-                application.father_district = first_app.father_district
-                application.father_date_of_birth = first_app.father_date_of_birth
-                application.father_place_of_birth = first_app.father_place_of_birth
-                application.father_chief_name = first_app.father_chief_name
-            
-            application.save()
-            messages.success(request, 'Your NRC replacement application has been submitted successfully!')
-            return redirect('applications:my_applications')
+            try:
+                application = form.save(commit=False)
+                application.user = request.user
+                application.application_type = 'replacement'
+                
+                # Copy user's existing information from their profile or first application
+                first_app = NRCApplication.objects.filter(user=request.user, application_type='new').first()
+                if first_app:
+                    # Copy information from first application
+                    application.village = first_app.village
+                    application.district = first_app.district
+                    application.date_of_birth = first_app.date_of_birth
+                    application.place_of_birth = first_app.place_of_birth
+                    application.chief_name = first_app.chief_name
+                    application.sex = first_app.sex
+                    application.photo = first_app.photo
+                    application.mother_full_name = first_app.mother_full_name
+                    application.mother_village = first_app.mother_village
+                    application.mother_district = first_app.mother_district
+                    application.mother_date_of_birth = first_app.mother_date_of_birth
+                    application.mother_place_of_birth = first_app.mother_place_of_birth
+                    application.mother_chief_name = first_app.mother_chief_name
+                    application.father_full_name = first_app.father_full_name
+                    application.father_village = first_app.father_village
+                    application.father_district = first_app.father_district
+                    application.father_date_of_birth = first_app.father_date_of_birth
+                    application.father_place_of_birth = first_app.father_place_of_birth
+                    application.father_chief_name = first_app.father_chief_name
+                
+                application.save()
+                
+                # Create admin notifications for replacement application
+                from .notifications import NotificationService
+                try:
+                    admin_notifications = NotificationService.create_new_application_notification(application)
+                    print(f"✅ Created {len(admin_notifications)} admin notifications for replacement application #{application.id:05d}")
+                except Exception as e:
+                    print(f"❌ Error creating admin notifications: {e}")
+                    # Don't fail the application submission if notification fails
+                
+                messages.success(request, 'Your NRC replacement application has been submitted successfully!')
+                return redirect('applications:my_applications')
+            except Exception as e:
+                messages.error(request, f'Error submitting replacement application: {str(e)}')
     else:
-        form = NRCReplacementForm()
+        form = NRCReplacementForm(user=request.user)
     
     # Check if user has an approved new application
     has_approved_nrc = NRCApplication.objects.filter(
@@ -202,12 +238,19 @@ def admin_dashboard(request):
     
     recent_applications = NRCApplication.objects.all()[:10]
     
+    # Get admin notifications
+    from .notifications import NotificationService
+    admin_notifications = NotificationService.get_admin_notifications(request.user, limit=5)
+    unread_admin_notifications = NotificationService.get_unread_admin_notifications(request.user)
+    
     context = {
         'total_applications': total_applications,
         'pending_applications': pending_applications,
         'approved_applications': approved_applications,
         'rejected_applications': rejected_applications,
         'recent_applications': recent_applications,
+        'admin_notifications': admin_notifications,
+        'unread_admin_notifications_count': unread_admin_notifications.count(),
     }
     return render(request, 'applications/admin_dashboard.html', context)
 
@@ -248,25 +291,138 @@ def admin_application_detail(request, pk):
         status = request.POST.get('status')
         admin_notes = request.POST.get('admin_notes', '')
         
-        # Update application
+        # Store old status to check for changes
         old_status = application.status
+        
+        # Perform duplication check before approval
+        if status == 'approved' and old_status != 'approved':
+            from .duplication_prevention import DuplicationChecker, log_duplication_attempt
+            
+            # Prepare application data for duplication check
+            application_data = {
+                'first_name': application.user.first_name,
+                'last_name': application.user.last_name,
+                'date_of_birth': application.date_of_birth,
+                'place_of_birth': application.place_of_birth,
+                'mother_full_name': application.mother_full_name,
+                'mother_date_of_birth': application.mother_date_of_birth,
+                'father_full_name': application.father_full_name,
+                'father_date_of_birth': application.father_date_of_birth,
+                'sex': application.sex,
+                'village': application.village,
+            }
+            
+            # Check for duplicates
+            duplicate_check = DuplicationChecker.comprehensive_duplicate_check(
+                application_data, application.user, application.id
+            )
+            
+            if duplicate_check['is_duplicate']:
+                # Log the duplication attempt
+                log_duplication_attempt(
+                    duplicate_check, 
+                    application.user, 
+                    request, 
+                    request.user, 
+                    'warned',
+                    f"Admin {request.user.username} was warned about potential duplicate but may proceed with approval."
+                )
+                
+                # Show warning to admin but allow override
+                duplicate_warnings = []
+                if duplicate_check['duplicate_type'] == 'exact_match':
+                    matching_apps = duplicate_check['matching_applications']
+                    app_ids = [f"#{app.id:05d}" for app in matching_apps]
+                    duplicate_warnings.append(
+                        f"⚠️ EXACT DUPLICATE DETECTED: Identical applications found ({', '.join(app_ids)}). "
+                        "Please verify this is not a duplicate person before approving."
+                    )
+                elif duplicate_check['duplicate_type'] == 'similar_match':
+                    matching_apps = duplicate_check['matching_applications']
+                    scores = duplicate_check['similarity_scores']
+                    app_details = []
+                    for app, score in zip(matching_apps, scores):
+                        app_details.append(f"#{app.id:05d} ({score:.1%} similar)")
+                    duplicate_warnings.append(
+                        f"⚠️ SIMILAR APPLICATIONS DETECTED: {', '.join(app_details)}. "
+                        "Please verify this is not a duplicate person before approving."
+                    )
+                
+                # Add warnings to messages
+                for warning in duplicate_warnings:
+                    messages.warning(request, warning)
+                
+                # Don't auto-approve, let admin review
+                messages.info(request, "Application status updated. Please review duplication warnings above before final approval.")
+        
+        # Update application
         application.status = status
         application.admin_notes = admin_notes
         application.save()
         
-        # Generate NRC card if status changed to approved and card not yet generated
-        if status == 'approved' and not application.nrc_front_image:
-            try:
-                front_path, back_path, nrc_number = generate_nrc_card(application)
-                application.nrc_front_image = front_path
-                application.nrc_back_image = back_path
-                application.nrc_number = nrc_number
-                application.nrc_generated_at = timezone.now()
-                application.save()
-                messages.success(request, f'Application approved and NRC card generated successfully! NRC Number: {nrc_number}')
-            except Exception as e:
-                messages.warning(request, f'Application approved but NRC card generation failed: {str(e)}')
+        # Import notification service
+        from .notifications import NotificationService
+        
+        # Create notifications based on status change
+        if old_status != status:
+            print(f"🔄 Status changed from {old_status} to {status}")  # Debug log
+            
+            if status == 'approved':
+                try:
+                    # Generate NRC card if not yet generated
+                    if not application.nrc_front_image:
+                        print("🎫 Generating NRC card...")  # Debug log
+                        try:
+                            front_path, back_path, nrc_number = generate_nrc_card(application)
+                            application.nrc_front_image = front_path
+                            application.nrc_back_image = back_path
+                            application.nrc_number = nrc_number
+                            application.nrc_generated_at = timezone.now()
+                            application.save()
+                            print(f"✅ NRC card generated: {nrc_number}")  # Debug log
+                            
+                            # Create approval notification
+                            print("🔔 Creating approval notification...")  # Debug log
+                            approval_notif = NotificationService.create_approval_notification(application)
+                            print(f"✅ Approval notification created: {approval_notif.id}")  # Debug log
+                            
+                            # Also create NRC ready notification
+                            print("🔔 Creating NRC ready notification...")  # Debug log
+                            nrc_notif = NotificationService.create_nrc_ready_notification(application)
+                            print(f"✅ NRC ready notification created: {nrc_notif.id}")  # Debug log
+                            
+                            messages.success(request, f'Application approved and NRC card generated successfully! NRC Number: {nrc_number}. User has been notified.')
+                        except Exception as e:
+                            print(f"❌ NRC generation failed: {e}")  # Debug log
+                            # Still create approval notification even if card generation fails
+                            approval_notif = NotificationService.create_approval_notification(application)
+                            print(f"✅ Approval notification created (fallback): {approval_notif.id}")  # Debug log
+                            messages.warning(request, f'Application approved but NRC card generation failed: {str(e)}. User has been notified of approval.')
+                    else:
+                        print("🎫 NRC already exists, creating approval notification...")  # Debug log
+                        # NRC already exists, just create approval notification
+                        approval_notif = NotificationService.create_approval_notification(application)
+                        print(f"✅ Approval notification created: {approval_notif.id}")  # Debug log
+                        messages.success(request, 'Application approved successfully! User has been notified.')
+                        
+                except Exception as e:
+                    print(f"❌ Error in approval process: {e}")  # Debug log
+                    import traceback
+                    traceback.print_exc()
+                    messages.error(request, f'Error during approval process: {str(e)}')
+                    
+            elif status == 'rejected':
+                try:
+                    print("🔔 Creating rejection notification...")  # Debug log
+                    # Create rejection notification
+                    rejection_notif = NotificationService.create_rejection_notification(application, admin_notes)
+                    print(f"✅ Rejection notification created: {rejection_notif.id}")  # Debug log
+                    messages.success(request, 'Application rejected successfully! User has been notified.')
+                except Exception as e:
+                    print(f"❌ Error creating rejection notification: {e}")  # Debug log
+                    messages.error(request, f'Application rejected but notification failed: {str(e)}')
         else:
+            print("ℹ️  Status unchanged, no notifications created")  # Debug log
             messages.success(request, 'Application updated successfully!')
         
         return redirect('applications:admin_application_detail', pk=pk)
@@ -415,7 +571,7 @@ def summary_report(request):
     
     # Handle export requests
     export_format = request.GET.get('export')
-    if export_format in ['csv', 'pdf', 'excel', 'word']:
+    if export_format in ['csv', 'pdf']:
         from .reports_service import ReportsService
         
         if export_format == 'csv':
@@ -455,7 +611,7 @@ def detailed_report(request):
     
     # Handle export requests
     export_format = request.GET.get('export')
-    if export_format in ['csv', 'pdf', 'excel', 'word']:
+    if export_format in ['csv', 'pdf']:
         from .reports_service import ReportsService
         
         if export_format == 'csv':
@@ -463,7 +619,7 @@ def detailed_report(request):
             response['Content-Disposition'] = 'attachment; filename="detailed_report.csv"'
             return ReportsService.export_to_csv(applications, 'detailed', response)
         else:
-            # For non-CSV exports, we need the full data context
+            # For PDF export, we need the full data context
             context_data = {
                 'total_applications': applications.count(),
                 'applications': applications,
@@ -561,7 +717,7 @@ def exception_report(request):
     
     # Handle export requests
     export_format = request.GET.get('export')
-    if export_format in ['csv', 'pdf', 'excel', 'word']:
+    if export_format in ['csv', 'pdf']:
         from .reports_service import ReportsService
         
         if export_format == 'csv':
@@ -744,3 +900,360 @@ def get_quick_responses(request):
 def ai_demo(request):
     """AI Assistant demo page"""
     return render(request, 'applications/ai_demo.html')
+
+# NRC Card Download Views
+@login_required
+def download_nrc_front(request, pk):
+    """Download NRC front side"""
+    application = get_object_or_404(NRCApplication, pk=pk, user=request.user)
+    
+    if application.status != 'approved' or not application.nrc_front_image:
+        messages.error(request, 'NRC card is not available for download.')
+        return redirect('applications:application_detail', pk=pk)
+    
+    try:
+        # Get the full file path
+        file_path = os.path.join(settings.MEDIA_ROOT, application.nrc_front_image)
+        
+        if os.path.exists(file_path):
+            # Create response with proper filename
+            filename = f"NRC_Front_{application.nrc_number}.png"
+            response = FileResponse(
+                open(file_path, 'rb'),
+                as_attachment=True,
+                filename=filename,
+                content_type='image/png'
+            )
+            return response
+        else:
+            messages.error(request, 'NRC front image file not found.')
+            return redirect('applications:view_nrc_card', pk=pk)
+            
+    except Exception as e:
+        messages.error(request, f'Error downloading NRC front: {str(e)}')
+        return redirect('applications:view_nrc_card', pk=pk)
+
+@login_required
+def download_nrc_back(request, pk):
+    """Download NRC back side"""
+    application = get_object_or_404(NRCApplication, pk=pk, user=request.user)
+    
+    if application.status != 'approved' or not application.nrc_back_image:
+        messages.error(request, 'NRC card is not available for download.')
+        return redirect('applications:application_detail', pk=pk)
+    
+    try:
+        # Get the full file path
+        file_path = os.path.join(settings.MEDIA_ROOT, application.nrc_back_image)
+        
+        if os.path.exists(file_path):
+            # Create response with proper filename
+            filename = f"NRC_Back_{application.nrc_number}.png"
+            response = FileResponse(
+                open(file_path, 'rb'),
+                as_attachment=True,
+                filename=filename,
+                content_type='image/png'
+            )
+            return response
+        else:
+            messages.error(request, 'NRC back image file not found.')
+            return redirect('applications:view_nrc_card', pk=pk)
+            
+    except Exception as e:
+        messages.error(request, f'Error downloading NRC back: {str(e)}')
+        return redirect('applications:view_nrc_card', pk=pk)
+
+@login_required
+def download_nrc_both(request, pk):
+    """Download both NRC sides as a ZIP file"""
+    application = get_object_or_404(NRCApplication, pk=pk, user=request.user)
+    
+    if application.status != 'approved' or not application.nrc_front_image or not application.nrc_back_image:
+        messages.error(request, 'NRC card is not available for download.')
+        return redirect('applications:application_detail', pk=pk)
+    
+    try:
+        # Get file paths
+        front_path = os.path.join(settings.MEDIA_ROOT, application.nrc_front_image)
+        back_path = os.path.join(settings.MEDIA_ROOT, application.nrc_back_image)
+        
+        if not os.path.exists(front_path) or not os.path.exists(back_path):
+            messages.error(request, 'One or both NRC image files not found.')
+            return redirect('applications:view_nrc_card', pk=pk)
+        
+        # Create ZIP file in memory
+        from io import BytesIO
+        zip_buffer = BytesIO()
+        
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            # Add front image
+            zip_file.write(front_path, f"NRC_Front_{application.nrc_number}.png")
+            # Add back image
+            zip_file.write(back_path, f"NRC_Back_{application.nrc_number}.png")
+        
+        zip_buffer.seek(0)
+        
+        # Create response
+        response = HttpResponse(zip_buffer.getvalue(), content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename="NRC_Complete_{application.nrc_number}.zip"'
+        
+        return response
+        
+    except Exception as e:
+        messages.error(request, f'Error creating ZIP file: {str(e)}')
+        return redirect('applications:view_nrc_card', pk=pk)
+
+# Admin Download Views (for admin users to download any NRC)
+@user_passes_test(is_admin)
+def admin_download_nrc_front(request, pk):
+    """Admin download NRC front side"""
+    application = get_object_or_404(NRCApplication, pk=pk)
+    
+    if application.status != 'approved' or not application.nrc_front_image:
+        messages.error(request, 'NRC card is not available for download.')
+        return redirect('applications:admin_application_detail', pk=pk)
+    
+    try:
+        file_path = os.path.join(settings.MEDIA_ROOT, application.nrc_front_image)
+        
+        if os.path.exists(file_path):
+            filename = f"NRC_Front_{application.nrc_number}_{application.user.get_full_name().replace(' ', '_')}.png"
+            response = FileResponse(
+                open(file_path, 'rb'),
+                as_attachment=True,
+                filename=filename,
+                content_type='image/png'
+            )
+            return response
+        else:
+            messages.error(request, 'NRC front image file not found.')
+            return redirect('applications:admin_application_detail', pk=pk)
+            
+    except Exception as e:
+        messages.error(request, f'Error downloading NRC front: {str(e)}')
+        return redirect('applications:admin_application_detail', pk=pk)
+
+@user_passes_test(is_admin)
+def admin_download_nrc_back(request, pk):
+    """Admin download NRC back side"""
+    application = get_object_or_404(NRCApplication, pk=pk)
+    
+    if application.status != 'approved' or not application.nrc_back_image:
+        messages.error(request, 'NRC card is not available for download.')
+        return redirect('applications:admin_application_detail', pk=pk)
+    
+    try:
+        file_path = os.path.join(settings.MEDIA_ROOT, application.nrc_back_image)
+        
+        if os.path.exists(file_path):
+            filename = f"NRC_Back_{application.nrc_number}_{application.user.get_full_name().replace(' ', '_')}.png"
+            response = FileResponse(
+                open(file_path, 'rb'),
+                as_attachment=True,
+                filename=filename,
+                content_type='image/png'
+            )
+            return response
+        else:
+            messages.error(request, 'NRC back image file not found.')
+            return redirect('applications:admin_application_detail', pk=pk)
+            
+    except Exception as e:
+        messages.error(request, f'Error downloading NRC back: {str(e)}')
+        return redirect('applications:admin_application_detail', pk=pk)
+
+@user_passes_test(is_admin)
+def admin_download_nrc_both(request, pk):
+    """Admin download both NRC sides as ZIP"""
+    application = get_object_or_404(NRCApplication, pk=pk)
+    
+    if application.status != 'approved' or not application.nrc_front_image or not application.nrc_back_image:
+        messages.error(request, 'NRC card is not available for download.')
+        return redirect('applications:admin_application_detail', pk=pk)
+    
+    try:
+        front_path = os.path.join(settings.MEDIA_ROOT, application.nrc_front_image)
+        back_path = os.path.join(settings.MEDIA_ROOT, application.nrc_back_image)
+        
+        if not os.path.exists(front_path) or not os.path.exists(back_path):
+            messages.error(request, 'One or both NRC image files not found.')
+            return redirect('applications:admin_application_detail', pk=pk)
+        
+        from io import BytesIO
+        zip_buffer = BytesIO()
+        
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            zip_file.write(front_path, f"NRC_Front_{application.nrc_number}.png")
+            zip_file.write(back_path, f"NRC_Back_{application.nrc_number}.png")
+        
+        zip_buffer.seek(0)
+        
+        response = HttpResponse(zip_buffer.getvalue(), content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename="NRC_Complete_{application.nrc_number}_{application.user.get_full_name().replace(" ", "_")}.zip"'
+        
+        return response
+        
+    except Exception as e:
+        messages.error(request, f'Error creating ZIP file: {str(e)}')
+        return redirect('applications:admin_application_detail', pk=pk)
+
+# Notification Views
+@login_required
+def notifications(request):
+    """View all notifications for the user"""
+    from .notifications import NotificationService
+    
+    all_notifications = request.user.notifications.all()
+    unread_count = NotificationService.get_unread_notifications(request.user).count()
+    
+    # Pagination
+    paginator = Paginator(all_notifications, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'unread_count': unread_count,
+    }
+    return render(request, 'applications/notifications.html', context)
+
+@login_required
+def mark_notification_read(request, notification_id):
+    """Mark a specific notification as read"""
+    from .notifications import NotificationService
+    
+    if NotificationService.mark_as_read(notification_id, request.user):
+        messages.success(request, 'Notification marked as read.')
+    else:
+        messages.error(request, 'Notification not found.')
+    
+    return redirect('applications:notifications')
+
+@login_required
+def mark_all_notifications_read(request):
+    """Mark all notifications as read"""
+    from .notifications import NotificationService
+    
+    NotificationService.mark_all_as_read(request.user)
+    messages.success(request, 'All notifications marked as read.')
+    
+    return redirect('applications:notifications')
+
+@login_required
+def get_notification_count(request):
+    """AJAX endpoint to get unread notification count"""
+    from .notifications import NotificationService
+    
+    unread_count = NotificationService.get_unread_notifications(request.user).count()
+    
+    return JsonResponse({
+        'unread_count': unread_count
+    })
+
+@user_passes_test(is_admin)
+def duplication_check(request):
+    """
+    Admin view to check for potential duplicates and manage duplication prevention
+    """
+    from .duplication_prevention import DuplicationChecker
+    from .models import DuplicationLog
+    from django.db.models import Q
+    import json
+    
+    # Get all applications for duplicate checking
+    all_applications = NRCApplication.objects.filter(
+        Q(status='pending') | Q(status='approved')
+    ).order_by('-created_at')
+    
+    potential_duplicates = []
+    exact_duplicates = 0
+    similar_matches = 0
+    clean_applications = 0
+    
+    # Check each application for duplicates
+    for app in all_applications:
+        application_data = {
+            'first_name': app.user.first_name,
+            'last_name': app.user.last_name,
+            'date_of_birth': app.date_of_birth,
+            'place_of_birth': app.place_of_birth,
+            'mother_full_name': app.mother_full_name,
+            'mother_date_of_birth': app.mother_date_of_birth,
+            'father_full_name': app.father_full_name,
+            'father_date_of_birth': app.father_date_of_birth,
+            'sex': app.sex,
+            'village': app.village,
+        }
+        
+        # Check for duplicates
+        duplicate_check = DuplicationChecker.comprehensive_duplicate_check(
+            application_data, app.user, app.id
+        )
+        
+        if duplicate_check['is_duplicate']:
+            duplicate_info = {
+                'application': app,
+                'duplicate_type': duplicate_check['duplicate_type'],
+                'matching_applications': duplicate_check['matching_applications'],
+                'similarity_scores': [score * 100 for score in duplicate_check['similarity_scores']],  # Convert to percentage
+            }
+            potential_duplicates.append(duplicate_info)
+            
+            if duplicate_check['duplicate_type'] == 'exact_match':
+                exact_duplicates += 1
+            elif duplicate_check['duplicate_type'] == 'similar_match':
+                similar_matches += 1
+        else:
+            clean_applications += 1
+    
+    # Get recent duplication logs
+    duplication_logs = DuplicationLog.objects.all()[:20]
+    
+    # Count blocked attempts
+    blocked_attempts = DuplicationLog.objects.filter(action_taken='blocked').count()
+    
+    context = {
+        'potential_duplicates': potential_duplicates,
+        'exact_duplicates': exact_duplicates,
+        'similar_matches': similar_matches,
+        'clean_applications': clean_applications,
+        'blocked_attempts': blocked_attempts,
+        'duplication_logs': duplication_logs,
+    }
+    
+    return render(request, 'applications/duplication_check.html', context)
+
+@user_passes_test(is_admin)
+def mark_not_duplicate(request, application_id):
+    """
+    Mark an application as not a duplicate (admin override)
+    """
+    if request.method == 'POST':
+        try:
+            application = get_object_or_404(NRCApplication, id=application_id)
+            
+            # Log the admin override
+            from .models import DuplicationLog
+            DuplicationLog.objects.create(
+                detection_type='similar_match',  # Assume it was similar match
+                action_taken='approved_override',
+                attempted_application_data={
+                    'application_id': application.id,
+                    'user': application.user.username,
+                },
+                matching_application_ids=[],
+                similarity_scores=[],
+                user=application.user,
+                admin_user=request.user,
+                admin_notes=f"Admin {request.user.username} marked application #{application.id:05d} as not a duplicate.",
+                ip_address=request.META.get('REMOTE_ADDR'),
+                user_agent=request.META.get('HTTP_USER_AGENT', ''),
+            )
+            
+            return JsonResponse({'success': True})
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})

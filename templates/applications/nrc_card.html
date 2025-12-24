@@ -3,108 +3,320 @@
 {% block title %}My NRC Card - Zambian NRC System{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto">
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Your National Registration Card</h1>
-        <p class="text-gray-600">NRC Number: <span class="font-semibold text-zambian-green">{{ application.nrc_number }}</span></p>
-    </div>
-
-    <!-- Success Message -->
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
-        <div class="flex items-center">
-            <i class="fas fa-check-circle text-2xl mr-3"></i>
-            <div>
-                <p class="font-semibold">Congratulations! Your NRC has been approved.</p>
-                <p class="text-sm">Generated on: {{ application.nrc_generated_at|date:"F d, Y g:i A" }}</p>
+<div class="max-w-7xl mx-auto">
+    <!-- Enhanced Header -->
+    <div class="mb-8 text-center">
+        <div class="bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg p-6 shadow-lg">
+            <h1 class="text-4xl font-bold mb-2">🎫 Your National Registration Card</h1>
+            <div class="flex items-center justify-center space-x-4">
+                <div class="bg-white bg-opacity-20 rounded-lg px-4 py-2">
+                    <p class="text-sm opacity-90">NRC Number</p>
+                    <p class="text-2xl font-bold">{{ application.nrc_number }}</p>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-lg px-4 py-2">
+                    <p class="text-sm opacity-90">Status</p>
+                    <p class="text-lg font-semibold">✅ APPROVED</p>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-lg px-4 py-2">
+                    <p class="text-sm opacity-90">Generated</p>
+                    <p class="text-lg font-semibold">{{ application.nrc_generated_at|date:"M d, Y" }}</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Card Container -->
-    <div class="flex flex-col items-center mb-8">
-        <!-- 3D Flip Card -->
+    <!-- Personal Information Summary -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-600">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-user text-green-600 mr-2"></i>Personal Details
+            </h3>
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Full Name:</span>
+                    <span class="font-semibold">{{ application.user.get_full_name }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Date of Birth:</span>
+                    <span class="font-semibold">{{ application.date_of_birth|date:"F d, Y" }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Sex:</span>
+                    <span class="font-semibold">{{ application.get_sex_display }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Place of Birth:</span>
+                    <span class="font-semibold">{{ application.place_of_birth }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-gray-800">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-map-marker-alt text-gray-800 mr-2"></i>Location Details
+            </h3>
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Village:</span>
+                    <span class="font-semibold">{{ application.village }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">District:</span>
+                    <span class="font-semibold">{{ application.district }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Chief:</span>
+                    <span class="font-semibold">{{ application.chief_name }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Application Type:</span>
+                    <span class="font-semibold">{{ application.get_application_type_display }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-800">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-certificate text-green-800 mr-2"></i>Card Information
+            </h3>
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">NRC Number:</span>
+                    <span class="font-bold text-green-600">{{ application.nrc_number }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Issue Date:</span>
+                    <span class="font-semibold">{{ application.nrc_generated_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Status:</span>
+                    <span class="font-semibold text-green-600">✅ Valid</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Digital Signature:</span>
+                    <span class="font-semibold">{% if application.digital_signature %}✅ Added{% else %}❌ Missing{% endif %}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Card Display -->
+    <div class="bg-white rounded-lg shadow-xl p-8 mb-8">
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">
+                <i class="fas fa-id-card text-green-600 mr-2"></i>Your Digital NRC Card
+            </h2>
+            <p class="text-gray-600">Click "Flip Card" to view both sides • Use download buttons to save images</p>
+        </div>
+        
+        <!-- 3D Flip Card with Enhanced Styling -->
         <div class="card-container" id="cardContainer">
             <div class="card" id="nrcCard">
                 <!-- Front Side -->
                 <div class="card-face card-front">
-                    <img src="/media/{{ application.nrc_front_image }}" alt="NRC Front" class="w-full h-full object-contain rounded-lg shadow-2xl">
+                    <div class="relative">
+                        <img src="/media/{{ application.nrc_front_image }}" alt="NRC Front Side" class="w-full h-full object-contain rounded-lg shadow-2xl">
+                        <div class="absolute top-2 left-2 bg-green-600 text-white px-2 py-1 rounded text-xs font-bold">
+                            FRONT SIDE
+                        </div>
+                        <div class="absolute top-2 right-2 bg-white bg-opacity-90 text-green-600 px-2 py-1 rounded text-xs font-bold">
+                            {{ application.nrc_number }}
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Back Side -->
                 <div class="card-face card-back">
-                    <img src="/media/{{ application.nrc_back_image }}" alt="NRC Back" class="w-full h-full object-contain rounded-lg shadow-2xl">
+                    <div class="relative">
+                        <img src="/media/{{ application.nrc_back_image }}" alt="NRC Back Side" class="w-full h-full object-contain rounded-lg shadow-2xl">
+                        <div class="absolute top-2 left-2 bg-gray-800 text-white px-2 py-1 rounded text-xs font-bold">
+                            BACK SIDE
+                        </div>
+                        <div class="absolute top-2 right-2 bg-white bg-opacity-90 text-gray-800 px-2 py-1 rounded text-xs font-bold">
+                            {{ application.nrc_number }}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Controls -->
-        <div class="mt-8 flex flex-wrap gap-4 justify-center">
+        <!-- Enhanced Controls -->
+        <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <button onclick="flipCard()" 
-                    class="px-6 py-3 bg-zambian-green text-white rounded-lg hover:bg-green-700 transition-colors shadow-md">
-                <i class="fas fa-sync-alt mr-2"></i>Flip Card
+                    class="px-6 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all shadow-lg transform hover:scale-105 font-semibold">
+                <i class="fas fa-sync-alt mr-2"></i>
+                <div class="text-sm">Flip Card</div>
+                <div class="text-xs opacity-75">View Other Side</div>
             </button>
             
-            <button onclick="downloadCard('front')" 
-                    class="px-6 py-3 bg-zambian-orange text-white rounded-lg hover:bg-orange-600 transition-colors shadow-md">
-                <i class="fas fa-download mr-2"></i>Download Front
-            </button>
+            <a href="{% url 'applications:download_nrc_front' application.pk %}" 
+               class="px-6 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-lg transform hover:scale-105 inline-flex flex-col items-center font-semibold">
+                <i class="fas fa-download text-lg mb-1"></i>
+                <div class="text-sm">Download Front</div>
+                <div class="text-xs opacity-75">PNG Image</div>
+            </a>
             
-            <button onclick="downloadCard('back')" 
-                    class="px-6 py-3 bg-zambian-red text-white rounded-lg hover:bg-red-700 transition-colors shadow-md">
-                <i class="fas fa-download mr-2"></i>Download Back
-            </button>
+            <a href="{% url 'applications:download_nrc_back' application.pk %}" 
+               class="px-6 py-4 bg-gradient-to-r from-gray-700 to-gray-800 text-white rounded-lg hover:from-gray-800 hover:to-gray-900 transition-all shadow-lg transform hover:scale-105 inline-flex flex-col items-center font-semibold">
+                <i class="fas fa-download text-lg mb-1"></i>
+                <div class="text-sm">Download Back</div>
+                <div class="text-xs opacity-75">PNG Image</div>
+            </a>
             
-            <button onclick="downloadBothSides()" 
-                    class="px-6 py-3 bg-zambian-black text-white rounded-lg hover:bg-gray-800 transition-colors shadow-md">
-                <i class="fas fa-file-archive mr-2"></i>Download Both Sides
+            <a href="{% url 'applications:download_nrc_both' application.pk %}" 
+               class="px-6 py-4 bg-gradient-to-r from-gray-800 to-black text-white rounded-lg hover:from-black hover:to-gray-900 transition-all shadow-lg transform hover:scale-105 inline-flex flex-col items-center font-semibold download-btn">
+                <i class="fas fa-file-archive text-lg mb-1"></i>
+                <div class="text-sm">Download Both</div>
+                <div class="text-xs opacity-75">ZIP Archive</div>
+            </a>
+            
+            <button onclick="printCard()" 
+                    class="px-6 py-4 bg-gradient-to-r from-green-800 to-green-900 text-white rounded-lg hover:from-green-900 hover:to-black transition-all shadow-lg transform hover:scale-105 font-semibold">
+                <i class="fas fa-print text-lg mb-1"></i>
+                <div class="text-sm">Print Card</div>
+                <div class="text-xs opacity-75">Both Sides</div>
             </button>
         </div>
     </div>
 
-    <!-- Instructions -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">
-            <i class="fas fa-info-circle text-zambian-green mr-2"></i>Instructions
-        </h2>
-        <ul class="space-y-2 text-gray-700">
-            <li class="flex items-start">
-                <i class="fas fa-check text-zambian-green mr-2 mt-1"></i>
-                <span>Click "Flip Card" to view both sides of your NRC</span>
-            </li>
-            <li class="flex items-start">
-                <i class="fas fa-check text-zambian-green mr-2 mt-1"></i>
-                <span>Download individual sides or both sides together</span>
-            </li>
-            <li class="flex items-start">
-                <i class="fas fa-check text-zambian-green mr-2 mt-1"></i>
-                <span>Keep your NRC number safe and secure</span>
-            </li>
-            <li class="flex items-start">
-                <i class="fas fa-check text-zambian-green mr-2 mt-1"></i>
-                <span>You can print these images for your records</span>
-            </li>
-            <li class="flex items-start">
-                <i class="fas fa-check text-zambian-green mr-2 mt-1"></i>
-                <span>Visit the nearest registration office to collect your physical NRC card</span>
-            </li>
-        </ul>
+    <!-- Enhanced Instructions and Features -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Instructions -->
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-600">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-info-circle text-green-600 mr-2"></i>How to Use Your Digital NRC
+            </h2>
+            <ul class="space-y-3 text-gray-700">
+                <li class="flex items-start">
+                    <div class="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">1</div>
+                    <span><strong>View Both Sides:</strong> Click "Flip Card" to see front and back of your NRC</span>
+                </li>
+                <li class="flex items-start">
+                    <div class="bg-green-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">2</div>
+                    <span><strong>Download Options:</strong> Get individual sides (PNG) or both sides (ZIP)</span>
+                </li>
+                <li class="flex items-start">
+                    <div class="bg-gray-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">3</div>
+                    <span><strong>Print Quality:</strong> High-resolution images suitable for printing</span>
+                </li>
+                <li class="flex items-start">
+                    <div class="bg-black text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">4</div>
+                    <span><strong>Security:</strong> Keep your NRC number confidential and secure</span>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Features and Security -->
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-gray-800">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-shield-alt text-gray-800 mr-2"></i>Security Features
+            </h2>
+            <div class="space-y-3">
+                <div class="flex items-center p-3 bg-green-50 rounded-lg">
+                    <i class="fas fa-check-circle text-green-600 text-xl mr-3"></i>
+                    <div>
+                        <p class="font-semibold text-green-800">Authentic Design</p>
+                        <p class="text-sm text-green-600">Matches official Zambian NRC format</p>
+                    </div>
+                </div>
+                <div class="flex items-center p-3 bg-blue-50 rounded-lg">
+                    <i class="fas fa-qrcode text-blue-600 text-xl mr-3"></i>
+                    <div>
+                        <p class="font-semibold text-blue-800">Security Barcode</p>
+                        <p class="text-sm text-blue-600">Unique verification pattern included</p>
+                    </div>
+                </div>
+                <div class="flex items-center p-3 bg-purple-50 rounded-lg">
+                    <i class="fas fa-signature text-purple-600 text-xl mr-3"></i>
+                    <div>
+                        <p class="font-semibold text-purple-800">Digital Signature</p>
+                        <p class="text-sm text-purple-600">{% if application.digital_signature %}Your signature is included{% else %}Add your signature for completeness{% endif %}</p>
+                    </div>
+                </div>
+            </div>
+            
+            {% if not application.digital_signature %}
+            <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p class="text-yellow-800 text-sm">
+                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                    <strong>Recommendation:</strong> Add your digital signature for a complete NRC card.
+                </p>
+                <a href="{% url 'applications:signature_pad' application.pk %}" 
+                   class="inline-block mt-2 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition-colors text-sm">
+                    <i class="fas fa-signature mr-1"></i>Add Signature Now
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Important Notice -->
+    <div class="bg-gradient-to-r from-gray-800 to-black text-white rounded-lg p-6 mb-6">
+        <div class="flex items-start">
+            <i class="fas fa-exclamation-triangle text-2xl mr-4 mt-1"></i>
+            <div>
+                <h3 class="text-lg font-bold mb-2">Important Notice</h3>
+                <p class="mb-2">This is a <strong>digital copy</strong> of your National Registration Card for your records and convenience.</p>
+                <p class="text-sm opacity-90">
+                    <i class="fas fa-map-marker-alt mr-1"></i>
+                    Visit your nearest <strong>Registration Office</strong> to collect your official physical NRC card.
+                </p>
+            </div>
+        </div>
     </div>
 
-    <!-- Back Button -->
-    <div class="flex justify-start">
+    <!-- Keyboard Shortcuts Info -->
+    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+        <h3 class="text-sm font-semibold text-gray-700 mb-2">
+            <i class="fas fa-keyboard mr-1"></i>Keyboard Shortcuts
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-gray-600">
+            <div class="flex items-center">
+                <kbd class="px-2 py-1 bg-white border border-gray-300 rounded text-xs font-mono mr-2">Space</kbd>
+                <span>Flip Card</span>
+            </div>
+            <div class="flex items-center">
+                <kbd class="px-2 py-1 bg-white border border-gray-300 rounded text-xs font-mono mr-2">F</kbd>
+                <span>Flip Card</span>
+            </div>
+            <div class="flex items-center">
+                <kbd class="px-2 py-1 bg-white border border-gray-300 rounded text-xs font-mono mr-2">D</kbd>
+                <span>Download Both</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex justify-between items-center">
         <a href="{% url 'applications:application_detail' application.pk %}" 
-           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+           class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm">
             <i class="fas fa-arrow-left mr-2"></i>Back to Application Details
         </a>
+        
+        <div class="flex space-x-3">
+            <a href="{% url 'applications:my_applications' %}" 
+               class="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm">
+                <i class="fas fa-list mr-2"></i>My Applications
+            </a>
+            
+            {% if not application.digital_signature %}
+            <a href="{% url 'applications:signature_pad' application.pk %}" 
+               class="inline-flex items-center px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-colors shadow-sm">
+                <i class="fas fa-signature mr-2"></i>Add Signature
+            </a>
+            {% endif %}
+        </div>
     </div>
 </div>
 
 <style>
+    /* Enhanced Card Container */
     .card-container {
         perspective: 1500px;
         width: 100%;
-        max-width: 800px;
+        max-width: 900px;
         margin: 0 auto;
+        filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
     }
 
     .card {
@@ -113,10 +325,12 @@
         padding-bottom: 63%; /* Aspect ratio for ID card */
         transform-style: preserve-3d;
         transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+        cursor: pointer;
+        transform: rotateY(0deg); /* Ensure initial state */
     }
 
     .card.flipped {
-        transform: rotateY(180deg);
+        transform: rotateY(180deg) !important; /* Force the flip */
     }
 
     .card-face {
@@ -125,96 +339,210 @@
         height: 100%;
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
-        border-radius: 0.5rem;
+        border-radius: 1rem;
         overflow: hidden;
+        border: 3px solid #16a34a;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }
 
     .card-front {
         z-index: 2;
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
     }
 
     .card-back {
         transform: rotateY(180deg);
+        background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
     }
 
-    /* Animation for card appearance */
+    /* Enhanced Animations */
     @keyframes cardAppear {
         from {
             opacity: 0;
-            transform: scale(0.8) translateY(20px);
+            transform: scale(0.8) translateY(30px) rotateX(10deg);
         }
         to {
             opacity: 1;
-            transform: scale(1) translateY(0);
+            transform: scale(1) translateY(0) rotateX(0deg);
+        }
+    }
+
+    @keyframes cardFloat {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-5px);
         }
     }
 
     .card-container {
-        animation: cardAppear 0.6s ease-out;
+        animation: cardAppear 0.8s ease-out;
     }
 
-    /* Hover effect */
+    /* Enhanced Hover Effects */
     .card-container:hover .card {
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        animation: cardFloat 2s ease-in-out infinite;
+    }
+
+    .card-container:hover {
+        filter: drop-shadow(0 15px 40px rgba(0, 0, 0, 0.4));
+    }
+
+    /* Flip Button Pulse Effect */
+    @keyframes pulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+        }
+    }
+
+    button:hover {
+        animation: pulse 1.5s infinite;
+    }
+
+    /* Card Details Enhancement */
+    .card-face img {
+        transition: transform 0.3s ease;
+    }
+
+    .card-face:hover img {
+        transform: scale(1.02);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .card-container {
+            max-width: 100%;
+            margin: 0 1rem;
+        }
+        
+        .card-face {
+            border-width: 2px;
+        }
+    }
+
+    /* Loading Animation */
+    @keyframes shimmer {
+        0% {
+            background-position: -200px 0;
+        }
+        100% {
+            background-position: calc(200px + 100%) 0;
+        }
+    }
+
+    .loading-shimmer {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200px 100%;
+        animation: shimmer 1.5s infinite;
+    }
+
+    /* Enhanced Button Styles */
+    .download-btn {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .download-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .download-btn:hover::before {
+        left: 100%;
     }
 </style>
 
 <script>
     let isFlipped = false;
+    let isFlipping = false;
 
     function flipCard() {
+        console.log('Flip card function called'); // Debug log
+        
+        if (isFlipping) {
+            console.log('Already flipping, returning');
+            return; // Prevent multiple flips
+        }
+        
         const card = document.getElementById('nrcCard');
+        const flipButton = document.querySelector('button[onclick="flipCard()"]');
+        
+        console.log('Card element:', card); // Debug log
+        console.log('Button element:', flipButton); // Debug log
+        
+        if (!card) {
+            console.error('Card element not found!');
+            return;
+        }
+        
+        if (!flipButton) {
+            console.error('Flip button not found!');
+            return;
+        }
+        
+        isFlipping = true;
         isFlipped = !isFlipped;
         
+        console.log('Flipping to:', isFlipped ? 'back' : 'front'); // Debug log
+        
+        // Add loading state
+        flipButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i><div class="text-sm">Flipping...</div>';
+        flipButton.disabled = true;
+        
+        // Apply flip transformation immediately
         if (isFlipped) {
             card.classList.add('flipped');
+            console.log('Added flipped class');
         } else {
             card.classList.remove('flipped');
-        }
-    }
-
-    function downloadCard(side) {
-        let url, filename;
-        
-        if (side === 'front') {
-            url = '/media/{{ application.nrc_front_image }}';
-            filename = 'NRC_Front_{{ application.nrc_number }}.png';
-        } else {
-            url = '/media/{{ application.nrc_back_image }}';
-            filename = 'NRC_Back_{{ application.nrc_number }}.png';
+            console.log('Removed flipped class');
         }
         
-        // Create a temporary link and trigger download
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename.replace(/\//g, '_');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        // Show success message
-        showNotification(`${side === 'front' ? 'Front' : 'Back'} side downloaded successfully!`);
-    }
-
-    async function downloadBothSides() {
-        // Download front
-        downloadCard('front');
-        
-        // Wait a bit then download back
+        // Update button after animation completes
         setTimeout(() => {
-            downloadCard('back');
-        }, 500);
+            if (isFlipped) {
+                flipButton.innerHTML = '<i class="fas fa-undo mr-2"></i><div class="text-sm">Show Front</div><div class="text-xs opacity-75">Currently: Back</div>';
+            } else {
+                flipButton.innerHTML = '<i class="fas fa-sync-alt mr-2"></i><div class="text-sm">Show Back</div><div class="text-xs opacity-75">Currently: Front</div>';
+            }
+            flipButton.disabled = false;
+            isFlipping = false;
+            console.log('Flip animation completed');
+        }, 800); // Match CSS transition duration
         
-        showNotification('Both sides are being downloaded!');
+        // Show notification
+        showNotification(isFlipped ? 'Showing back side of NRC' : 'Showing front side of NRC');
     }
 
-    function showNotification(message) {
+    function showNotification(message, type = 'success') {
+        // Remove existing notifications
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(notif => notif.remove());
+        
         // Create notification element
         const notification = document.createElement('div');
-        notification.className = 'fixed top-20 right-4 bg-zambian-green text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center';
+        notification.className = `notification fixed top-20 right-4 px-6 py-3 rounded-lg shadow-lg z-50 flex items-center ${
+            type === 'success' ? 'bg-green-600 text-white' : 
+            type === 'info' ? 'bg-gray-700 text-white' : 
+            'bg-gray-800 text-white'
+        }`;
+        
         notification.innerHTML = `
-            <i class="fas fa-check-circle mr-2"></i>
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-circle'} mr-2"></i>
             <span>${message}</span>
+            <button onclick="this.parentElement.remove()" class="ml-3 text-white hover:text-gray-200">
+                <i class="fas fa-times"></i>
+            </button>
         `;
         
         document.body.appendChild(notification);
@@ -228,32 +556,173 @@
             notification.style.transform = 'translateX(0)';
         }, 10);
         
-        // Remove after 3 seconds
+        // Auto-remove after 4 seconds
         setTimeout(() => {
-            notification.style.opacity = '0';
-            notification.style.transform = 'translateX(100px)';
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 300);
-        }, 3000);
+            if (notification.parentElement) {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100px)';
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 300);
+            }
+        }, 4000);
     }
+
+    // Enhanced download tracking
+    function trackDownload(type) {
+        showNotification(`Downloading ${type} side of your NRC card...`, 'info');
+        
+        // Track download analytics (could be sent to server)
+        console.log(`NRC Download: ${type} - {{ application.nrc_number }} - ${new Date().toISOString()}`);
+    }
+
+    // Add download tracking to links
+    document.addEventListener('DOMContentLoaded', () => {
+        const downloadLinks = document.querySelectorAll('a[href*="download"]');
+        downloadLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                const href = e.target.closest('a').href;
+                if (href.includes('front')) {
+                    trackDownload('front');
+                } else if (href.includes('back')) {
+                    trackDownload('back');
+                } else if (href.includes('both')) {
+                    trackDownload('both sides');
+                }
+            });
+        });
+    });
 
     // Auto-flip demonstration on page load
     window.addEventListener('load', () => {
+        showNotification('Welcome! Your NRC card is ready for viewing and download.', 'success');
+        
+        // Auto-flip demo after 2 seconds
         setTimeout(() => {
+            showNotification('Auto-demo: Flipping to show back side...', 'info');
             flipCard();
+            
             setTimeout(() => {
+                showNotification('Auto-demo: Returning to front side...', 'info');
                 flipCard();
-            }, 2000);
-        }, 1000);
+            }, 3000);
+        }, 2000);
     });
 
-    // Keyboard shortcut: Space to flip
+    // Enhanced keyboard shortcuts
     document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-            e.preventDefault();
-            flipCard();
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+            switch(e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    flipCard();
+                    break;
+                case 'KeyF':
+                    e.preventDefault();
+                    flipCard();
+                    showNotification('Keyboard shortcut: F or Space to flip card', 'info');
+                    break;
+                case 'KeyD':
+                    e.preventDefault();
+                    document.querySelector('a[href*="download_nrc_both"]').click();
+                    break;
+            }
         }
     });
+
+    // Card click to flip
+    document.addEventListener('DOMContentLoaded', () => {
+        const card = document.getElementById('nrcCard');
+        card.addEventListener('click', flipCard);
+        card.style.cursor = 'pointer';
+        
+        // Add tooltip
+        card.title = 'Click to flip card or use Space/F key';
+    });
+
+    // Prevent context menu on card (security)
+    document.addEventListener('DOMContentLoaded', () => {
+        const cardImages = document.querySelectorAll('.card-face img');
+        cardImages.forEach(img => {
+            img.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                showNotification('Right-click disabled for security. Use download buttons instead.', 'info');
+            });
+            
+            // Prevent drag
+            img.addEventListener('dragstart', (e) => {
+                e.preventDefault();
+            });
+        });
+    });
+
+    // Add loading states for images
+    document.addEventListener('DOMContentLoaded', () => {
+        const cardImages = document.querySelectorAll('.card-face img');
+        cardImages.forEach(img => {
+            if (!img.complete) {
+                img.style.opacity = '0';
+                img.addEventListener('load', () => {
+                    img.style.transition = 'opacity 0.5s ease';
+                    img.style.opacity = '1';
+                });
+            }
+        });
+    });
+
+    // Print functionality
+    function printCard() {
+        const printWindow = window.open('', '_blank');
+        const cardHTML = `
+            <html>
+                <head>
+                    <title>NRC Card - {{ application.nrc_number }}</title>
+                    <style>
+                        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+                        .card-print { max-width: 800px; margin: 0 auto; }
+                        .card-side { margin-bottom: 30px; page-break-inside: avoid; }
+                        img { max-width: 100%; height: auto; border: 2px solid #0f766e; border-radius: 10px; }
+                        h2 { color: #0f766e; text-align: center; }
+                        .info { text-align: center; margin: 10px 0; color: #666; }
+                    </style>
+                </head>
+                <body>
+                    <div class="card-print">
+                        <h1 style="text-align: center; color: #0f766e;">National Registration Card</h1>
+                        <div class="info">NRC Number: {{ application.nrc_number }} | Generated: {{ application.nrc_generated_at|date:"F d, Y" }}</div>
+                        
+                        <div class="card-side">
+                            <h2>Front Side</h2>
+                            <img src="/media/{{ application.nrc_front_image }}" alt="NRC Front">
+                        </div>
+                        
+                        <div class="card-side">
+                            <h2>Back Side</h2>
+                            <img src="/media/{{ application.nrc_back_image }}" alt="NRC Back">
+                        </div>
+                        
+                        <div class="info" style="margin-top: 30px; font-size: 12px;">
+                            Printed on: ${new Date().toLocaleDateString()} | 
+                            This is a digital copy for your records | 
+                            Visit registration office for physical card
+                        </div>
+                    </div>
+                </body>
+            </html>
+        `;
+        
+        printWindow.document.write(cardHTML);
+        printWindow.document.close();
+        printWindow.focus();
+        
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 500);
+        
+        showNotification('Opening print dialog...', 'info');
+    }
 </script>
 {% endblock %}

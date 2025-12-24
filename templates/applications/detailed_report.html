@@ -23,11 +23,7 @@
                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     <i class="fas fa-file-pdf mr-2 text-red-600"></i>Export as PDF
                 </a>
-                <a href="?export=excel{% if status_filter %}&status={{ status_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if district_filter %}&district={{ district_filter }}{% endif %}" 
-                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-file-excel mr-2 text-green-600"></i>Export as Excel
-                </a>
-                <a href="?export=word{% if status_filter %}&status={{ status_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if district_filter %}&district={{ district_filter }}{% endif %}" 
+            </div> 
                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     <i class="fas fa-file-word mr-2 text-blue-600"></i>Export as Word
                 </a>
@@ -159,10 +155,15 @@
     </div>
 
     <!-- Back Button -->
-    <div class="mt-6">
+    <div class="mt-6 flex space-x-3">
         <a href="{% url 'applications:admin_reports' %}" 
            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
             <i class="fas fa-arrow-left mr-2"></i>Back to Reports
+        </a>
+        <a href="{% url 'applications:admin_dashboard' %}" 
+           class="inline-flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors shadow-sm">
+            <i class="fas fa-tachometer-alt mr-2"></i>
+            Back to Admin Dashboard
         </a>
     </div>
 </div>

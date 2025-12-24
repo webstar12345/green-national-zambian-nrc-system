@@ -173,8 +173,8 @@ class ReportsService:
         
         # 4. Rejected applications without admin notes (Medium Priority)
         rejected_no_notes = NRCApplication.objects.filter(
-            status='rejected',
-            Q(admin_notes__isnull=True) | Q(admin_notes='')
+            Q(admin_notes__isnull=True) | Q(admin_notes=''),
+            status='rejected'
         )
         for app in rejected_no_notes:
             exceptions.append({
@@ -321,7 +321,7 @@ class ReportsService:
     
     @staticmethod
     def get_export_response(data, report_type, export_format, applications=None, exceptions=None):
-        """Get export response in specified format"""
+        """Get export response in PDF format only"""
         from .report_exporters import ReportExporter
         
         timestamp = timezone.now().strftime('%Y%m%d_%H%M%S')
@@ -330,27 +330,20 @@ class ReportsService:
             if report_type == 'summary':
                 filename = f"summary_report_{timestamp}.pdf"
                 return ReportExporter.export_summary_to_pdf(data, filename)
+            elif report_type == 'detailed' and applications:
+                filename = f"detailed_report_{timestamp}.pdf"
+                return ReportExporter.export_detailed_to_pdf(applications, filename)
+            elif report_type == 'exceptions' and exceptions:
+                filename = f"exceptions_report_{timestamp}.pdf"
+                return ReportExporter.export_exceptions_to_pdf(exceptions, filename)
             else:
-                # For other reports, we'll create a basic PDF
+                # Fallback to summary format for unknown report types
                 filename = f"{report_type}_report_{timestamp}.pdf"
                 return ReportExporter.export_summary_to_pdf(data, filename)
         
-        elif export_format == 'excel':
-            if report_type == 'detailed' and applications:
-                filename = f"detailed_report_{timestamp}.xlsx"
-                return ReportExporter.export_detailed_to_excel(applications, filename)
-            elif report_type == 'exceptions' and exceptions:
-                filename = f"exceptions_report_{timestamp}.xlsx"
-                return ReportExporter.export_exceptions_to_excel(exceptions, filename)
-            else:
-                # Create a summary Excel file
-                filename = f"summary_report_{timestamp}.xlsx"
-                return ReportExporter.export_detailed_to_excel([], filename)
-        
-        elif export_format == 'word':
-            filename = f"{report_type}_report_{timestamp}.docx"
-            return ReportExporter.export_summary_to_word(data, filename)
-        
         else:
-            # Default to CSV
+            # Default to CSV for any non-PDF requests
+            filename = f"{report_type}_report_{timestamp}.csv"
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
             return ReportsService.export_to_csv(data, report_type, response)

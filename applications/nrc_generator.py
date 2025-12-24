@@ -11,9 +11,25 @@ import string
 
 def generate_nrc_number():
     """Generate a unique NRC number in format: Z 17763276 (matching real format)"""
-    # Generate 8-digit number starting with Z
-    number = ''.join(random.choices(string.digits, k=8))
-    return f"Z {number}"
+    from .models import NRCApplication
+    
+    max_attempts = 100  # Prevent infinite loop
+    attempts = 0
+    
+    while attempts < max_attempts:
+        # Generate 8-digit number starting with Z
+        number = ''.join(random.choices(string.digits, k=8))
+        nrc_number = f"Z {number}"
+        
+        # Check if this number already exists
+        if not NRCApplication.objects.filter(nrc_number=nrc_number).exists():
+            return nrc_number
+        
+        attempts += 1
+    
+    # If we can't generate a unique number after max_attempts, use timestamp
+    timestamp = str(int(datetime.now().timestamp()))[-8:]
+    return f"Z {timestamp}"
 
 def generate_nrc_card(application):
     """
@@ -70,114 +86,170 @@ def get_fonts():
     return title_font, header_font, text_font, small_font, label_font
 
 def generate_front_side(application, nrc_number, width, height, nrc_dir):
-    """Generate the front side of the NRC card - matching authentic Zambian design"""
-    # Create image with light green background (matching real card)
-    nrc_green = (200, 230, 200)  # Light green background like real card
-    img = Image.new('RGB', (width, height), color=nrc_green)
+    """Generate the front side of the NRC card - Enhanced Zambian design with better clarity"""
+    # Create image with professional gradient background
+    img = Image.new('RGB', (width, height), color=(245, 250, 245))
     draw = ImageDraw.Draw(img)
     
-    # Authentic colors from real NRC card
-    black = (0, 0, 0)
-    white = (255, 255, 255)
-    dark_green = (0, 100, 0)
+    # Green and Black color scheme only
+    zambian_green = (0, 120, 50)      # Official Zambian green
+    dark_green = (0, 80, 30)          # Darker green for contrast
+    light_green = (200, 240, 200)     # Light green for backgrounds
+    black = (0, 0, 0)                 # Pure black
+    white = (255, 255, 255)           # Pure white
+    dark_gray = (40, 40, 40)          # Dark gray (almost black)
+    light_gray = (240, 240, 240)      # Light gray
     
-    # Get fonts
+    # Get fonts with better sizing
     title_font, header_font, text_font, small_font, label_font = get_fonts()
     
-    # Draw main border (black outline)
-    draw.rectangle([10, 10, width-10, height-10], outline=black, width=3)
+    # Draw enhanced border with green and black only
+    draw.rectangle([5, 5, width-5, height-5], outline=zambian_green, width=4)
+    draw.rectangle([10, 10, width-10, height-10], outline=black, width=2)
     
-    # Header section - "REPUBLIC OF ZAMBIA"
-    header_y = 25
-    draw.text((25, header_y), "REPUBLIC OF ZAMBIA", fill=black, font=header_font)
+    # Header section with green and black styling
+    header_y = 20
+    # Draw header background
+    draw.rectangle([15, 15, width-15, 65], fill=zambian_green, outline=black, width=1)
     
-    # Card number in top right (matching real format)
-    card_no_x = width - 200
-    draw.text((card_no_x, header_y), "CARD No.", fill=black, font=small_font)
-    draw.text((card_no_x, header_y + 25), nrc_number, fill=black, font=text_font)
+    # "REPUBLIC OF ZAMBIA" in white on green background
+    draw.text((30, header_y + 5), "REPUBLIC OF ZAMBIA", fill=white, font=header_font)
     
-    # "NATIONAL REGISTRATION CARD" title
-    title_y = 70
-    draw.text((25, title_y), "NATIONAL", fill=black, font=header_font)
-    draw.text((25, title_y + 30), "REGISTRATION CARD", fill=black, font=header_font)
+    # Simple green and black stripe pattern
+    stripe_y = header_y + 35
+    stripe_width = (width - 60) // 2
+    draw.rectangle([30, stripe_y, 30 + stripe_width, stripe_y + 8], fill=dark_green)
+    draw.rectangle([30 + stripe_width, stripe_y, width - 30, stripe_y + 8], fill=black)
     
-    # Main content area with grid lines (like real card)
-    content_start_y = 140
+    # Card number in enhanced box
+    card_no_x = width - 220
+    card_no_y = header_y + 5
+    draw.rectangle([card_no_x, card_no_y, width - 20, card_no_y + 35], fill=white, outline=black, width=1)
+    draw.text((card_no_x + 10, card_no_y + 2), "CARD No.", fill=black, font=small_font)
+    draw.text((card_no_x + 10, card_no_y + 18), nrc_number, fill=zambian_green, font=text_font)
     
-    # Full Name field
+    # "NATIONAL REGISTRATION CARD" title with enhanced styling
+    title_y = 80
+    title_bg_y = title_y - 5
+    draw.rectangle([20, title_bg_y, width - 20, title_y + 65], fill=light_gray, outline=dark_gray, width=1)
+    
+    draw.text((30, title_y), "NATIONAL", fill=zambian_green, font=header_font)
+    draw.text((30, title_y + 30), "REGISTRATION CARD", fill=zambian_green, font=header_font)
+    
+    # Add decorative elements in green and black
+    draw.rectangle([width - 150, title_y + 10, width - 30, title_y + 50], fill=dark_green, outline=black, width=1)
+    draw.text((width - 140, title_y + 20), "OFFICIAL", fill=white, font=small_font)
+    draw.text((width - 140, title_y + 35), "DOCUMENT", fill=white, font=small_font)
+    
+    # Main content area with enhanced layout
+    content_start_y = 160
+    
+    # Full Name field with enhanced styling
     name_y = content_start_y
-    draw.text((25, name_y), "FULL NAME", fill=black, font=small_font)
+    # Create field background
+    draw.rectangle([20, name_y - 5, width - 20, name_y + 50], fill=white, outline=zambian_green, width=2)
+    
+    draw.text((30, name_y), "FULL NAME", fill=zambian_green, font=label_font)
     user = application.user
     full_name = f"{user.first_name} {user.last_name}".upper()
-    draw.text((25, name_y + 20), full_name, fill=black, font=text_font)
-    draw.line([25, name_y + 45, width-25, name_y + 45], fill=black, width=1)
+    draw.text((30, name_y + 22), full_name, fill=black, font=text_font)
     
-    # Date of Birth and Place of Birth (side by side)
-    dob_y = name_y + 60
-    draw.text((25, dob_y), "DATE OF BIRTH", fill=black, font=small_font)
-    draw.text((25, dob_y + 20), application.date_of_birth.strftime("%d.%m.%Y"), fill=black, font=text_font)
+    # Add decorative line
+    draw.line([30, name_y + 47, width - 30, name_y + 47], fill=zambian_green, width=2)
     
-    # Place of Birth (right side)
-    pob_x = 300
-    draw.text((pob_x, dob_y), "PLACE OF BIRTH", fill=black, font=small_font)
+    # Date of Birth, Place of Birth, and Sex (enhanced layout)
+    dob_y = name_y + 70
+    
+    # Date of Birth section
+    dob_width = 200
+    draw.rectangle([20, dob_y - 5, 20 + dob_width, dob_y + 50], fill=white, outline=dark_green, width=2)
+    draw.text((30, dob_y), "DATE OF BIRTH", fill=dark_green, font=label_font)
+    draw.text((30, dob_y + 22), application.date_of_birth.strftime("%d.%m.%Y"), fill=black, font=text_font)
+    
+    # Place of Birth section (middle)
+    pob_x = 240
+    pob_width = 280
+    draw.rectangle([pob_x, dob_y - 5, pob_x + pob_width, dob_y + 50], fill=white, outline=black, width=2)
+    draw.text((pob_x + 10, dob_y), "PLACE OF BIRTH", fill=black, font=label_font)
     place_of_birth = f"{application.village}, {application.district}".upper()
-    draw.text((pob_x, dob_y + 20), place_of_birth[:25], fill=black, font=text_font)
+    draw.text((pob_x + 10, dob_y + 22), place_of_birth[:25], fill=black, font=text_font)
     
-    # Sex (right side)
-    sex_x = width - 150
-    draw.text((sex_x, dob_y), "SEX", fill=black, font=small_font)
-    sex_display = "M" if application.sex == 'M' else "F"
-    draw.text((sex_x, dob_y + 20), sex_display, fill=black, font=text_font)
+    # Sex section (right side)
+    sex_x = 540
+    sex_width = width - sex_x - 20
+    draw.rectangle([sex_x, dob_y - 5, width - 20, dob_y + 50], fill=white, outline=black, width=2)
+    draw.text((sex_x + 10, dob_y), "SEX", fill=black, font=label_font)
+    sex_display = "MALE" if application.sex == 'M' else "FEMALE"
+    draw.text((sex_x + 10, dob_y + 22), sex_display, fill=black, font=text_font)
     
-    draw.line([25, dob_y + 45, width-25, dob_y + 45], fill=black, width=1)
-    
-    # Father's/Mother's Place of Birth
-    parents_y = dob_y + 60
-    draw.text((25, parents_y), "FATHER'S/MOTHER'S PLACE OF BIRTH", fill=black, font=small_font)
+    # Parents' Place of Birth (enhanced)
+    parents_y = dob_y + 70
+    draw.rectangle([20, parents_y - 5, width - 20, parents_y + 50], fill=white, outline=zambian_green, width=2)
+    draw.text((30, parents_y), "FATHER'S/MOTHER'S PLACE OF BIRTH", fill=zambian_green, font=label_font)
     parents_place = f"{application.mother_village}, {application.mother_district}".upper()
-    draw.text((25, parents_y + 20), parents_place[:40], fill=black, font=text_font)
-    draw.line([25, parents_y + 45, width-25, parents_y + 45], fill=black, width=1)
+    draw.text((30, parents_y + 22), parents_place[:40], fill=black, font=text_font)
     
-    # Village and District (side by side)
-    village_y = parents_y + 60
-    draw.text((25, village_y), "VILLAGE", fill=black, font=small_font)
-    draw.text((25, village_y + 20), application.village.upper(), fill=black, font=text_font)
+    # Village and District (enhanced side by side)
+    village_y = parents_y + 70
     
-    # District (right side)
-    district_x = 300
-    draw.text((district_x, village_y), "DISTRICT", fill=black, font=small_font)
-    draw.text((district_x, village_y + 20), application.district.upper(), fill=black, font=text_font)
-    draw.line([25, village_y + 45, width-25, village_y + 45], fill=black, width=1)
+    # Village section
+    village_width = 300
+    draw.rectangle([20, village_y - 5, 20 + village_width, village_y + 50], fill=white, outline=zambian_green, width=2)
+    draw.text((30, village_y), "VILLAGE", fill=zambian_green, font=label_font)
+    draw.text((30, village_y + 22), application.village.upper(), fill=black, font=text_font)
     
-    # Chief and Registration Date (side by side)
-    chief_y = village_y + 60
-    draw.text((25, chief_y), "CHIEF", fill=black, font=small_font)
-    draw.text((25, chief_y + 20), application.chief_name.upper(), fill=black, font=text_font)
+    # District section
+    district_x = 340
+    district_width = width - district_x - 20
+    draw.rectangle([district_x, village_y - 5, width - 20, village_y + 50], fill=white, outline=black, width=2)
+    draw.text((district_x + 10, village_y), "DISTRICT", fill=black, font=label_font)
+    draw.text((district_x + 10, village_y + 22), application.district.upper(), fill=black, font=text_font)
     
-    # Registration Date (right side)
-    reg_date_x = 400
-    draw.text((reg_date_x, chief_y), "REGISTRATION DATE", fill=black, font=small_font)
+    # Chief and Registration Date (enhanced)
+    chief_y = village_y + 70
+    
+    # Chief section
+    chief_width = 350
+    draw.rectangle([20, chief_y - 5, 20 + chief_width, chief_y + 50], fill=white, outline=black, width=2)
+    draw.text((30, chief_y), "CHIEF", fill=black, font=label_font)
+    draw.text((30, chief_y + 22), application.chief_name.upper(), fill=black, font=text_font)
+    
+    # Registration Date section
+    reg_date_x = 390
+    draw.rectangle([reg_date_x, chief_y - 5, width - 20, chief_y + 50], fill=light_gray, outline=black, width=2)
+    draw.text((reg_date_x + 10, chief_y), "REGISTRATION DATE", fill=black, font=label_font)
     reg_date = datetime.now().strftime("%d.%m.%Y")
-    draw.text((reg_date_x, chief_y + 20), reg_date, fill=black, font=text_font)
-    draw.line([25, chief_y + 45, width-25, chief_y + 45], fill=black, width=1)
+    draw.text((reg_date_x + 10, chief_y + 22), reg_date, fill=black, font=text_font)
     
-    # Special Marks and Date of Renunciation (side by side)
-    marks_y = chief_y + 60
-    draw.text((25, marks_y), "SPECIAL MARKS", fill=black, font=small_font)
-    draw.text((25, marks_y + 20), "--", fill=black, font=text_font)
+    # Special Marks and Date of Renunciation (enhanced)
+    marks_y = chief_y + 70
     
-    # Date of Renunciation (right side)
-    renun_x = 400
-    draw.text((renun_x, marks_y), "DATE OF RENUNCIATION", fill=black, font=small_font)
-    draw.text((renun_x, marks_y + 20), "--", fill=black, font=text_font)
-    draw.line([25, marks_y + 45, width-25, marks_y + 45], fill=black, width=1)
+    # Special Marks section
+    marks_width = 350
+    draw.rectangle([20, marks_y - 5, 20 + marks_width, marks_y + 50], fill=white, outline=dark_gray, width=2)
+    draw.text((30, marks_y), "SPECIAL MARKS", fill=dark_gray, font=label_font)
+    draw.text((30, marks_y + 22), "NONE", fill=black, font=text_font)
     
-    # Footer message
-    footer_y = height - 60
+    # Date of Renunciation section
+    renun_x = 390
+    draw.rectangle([renun_x, marks_y - 5, width - 20, marks_y + 50], fill=white, outline=dark_gray, width=2)
+    draw.text((renun_x + 10, marks_y), "DATE OF RENUNCIATION", fill=dark_gray, font=label_font)
+    draw.text((renun_x + 10, marks_y + 22), "N/A", fill=black, font=text_font)
+    
+    # Enhanced footer with official styling
+    footer_y = height - 70
+    draw.rectangle([15, footer_y - 10, width - 15, height - 15], fill=zambian_green, outline=black, width=2)
+    
     footer_text = "IF THIS CARD IS FOUND, PLEASE RETURN TO NEAREST REGISTRATION OFFICE"
-    draw.text((25, footer_y), footer_text, fill=black, font=small_font)
-    footer_text2 = "OR POLICE STATION."
-    draw.text((25, footer_y + 15), footer_text2, fill=black, font=small_font)
+    draw.text((25, footer_y), footer_text, fill=white, font=small_font)
+    footer_text2 = "OR POLICE STATION - GOVERNMENT OF ZAMBIA"
+    draw.text((25, footer_y + 18), footer_text2, fill=white, font=small_font)
+    
+    # Add official seal area
+    seal_x = width - 120
+    seal_y = footer_y - 5
+    draw.ellipse([seal_x, seal_y, seal_x + 40, seal_y + 40], fill=white, outline=black, width=2)
+    draw.text((seal_x + 8, seal_y + 15), "SEAL", fill=black, font=small_font)
     
     # Add watermark pattern (like real card)
     add_watermark_pattern(draw, width, height)
@@ -190,16 +262,17 @@ def generate_front_side(application, nrc_number, width, height, nrc_dir):
     return f"nrc_cards/{front_filename}"
 
 def generate_back_side(application, nrc_number, width, height, nrc_dir):
-    """Generate the back side of the NRC card - matching authentic Zambian design"""
-    # Create image with light green background (matching real card)
-    nrc_green = (200, 230, 200)  # Light green background like real card
-    img = Image.new('RGB', (width, height), color=nrc_green)
+    """Generate the back side of the NRC card - Green and Black design"""
+    # Create image with light green background
+    light_green = (200, 240, 200)  # Light green background
+    img = Image.new('RGB', (width, height), color=light_green)
     draw = ImageDraw.Draw(img)
     
-    # Authentic colors from real NRC card
+    # Green and Black color scheme only
+    zambian_green = (0, 120, 50)
+    dark_green = (0, 80, 30)
     black = (0, 0, 0)
     white = (255, 255, 255)
-    blue = (0, 100, 200)
     
     # Get fonts
     title_font, header_font, text_font, small_font, label_font = get_fonts()
@@ -244,15 +317,18 @@ def generate_back_side(application, nrc_number, width, height, nrc_dir):
     reg_y = 50
     draw.text((reg_x, reg_y), "REGISTRATION NUMBER", fill=black, font=small_font)
     
-    # Draw registration number box with pattern (like real card)
+    # Draw registration number box with green pattern
     reg_box_y = reg_y + 25
     draw.rectangle([reg_x, reg_box_y, reg_x + 300, reg_box_y + 40], 
-                   outline=black, width=2, fill=(255, 200, 100))
+                   outline=black, width=2, fill=zambian_green)
     
-    # Add wavy pattern inside registration box (simplified)
-    for i in range(5):
-        y_pos = reg_box_y + 8 + (i * 6)
-        draw.line([reg_x + 10, y_pos, reg_x + 290, y_pos], fill=black, width=1)
+    # Add the actual NRC number in white text on green background
+    draw.text((reg_x + 10, reg_box_y + 10), nrc_number, fill=white, font=header_font)
+    
+    # Add wavy pattern inside registration box (white on green) - below the number
+    for i in range(2):
+        y_pos = reg_box_y + 30 + (i * 4)
+        draw.line([reg_x + 10, y_pos, reg_x + 290, y_pos], fill=white, width=1)
     
     # Republic of Zambia text and coat of arms area
     coat_y = reg_y + 100
@@ -381,16 +457,62 @@ def generate_barcode_pattern(draw, x, y, width, height, nrc_number):
     draw.text((x, y + height - 15), digits[:8], fill=(0, 0, 0), font=barcode_font)
 
 def add_watermark_pattern(draw, width, height):
-    """Add subtle watermark pattern like real NRC card"""
-    # Add diagonal watermark lines (very light)
+    """Add subtle watermark pattern with coat of arms like real NRC card"""
+    # Light green watermark color
     watermark_color = (220, 240, 220)
     
-    # Diagonal lines across the card
+    # Add diagonal watermark lines (very light)
     for i in range(0, width + height, 30):
         draw.line([i, 0, i - height, height], fill=watermark_color, width=1)
+    
+    # Add coat of arms watermark in center
+    add_coat_of_arms_watermark(draw, width, height, watermark_color)
     
     # Add some circular patterns (simplified)
     for x in range(100, width - 100, 150):
         for y in range(100, height - 100, 100):
             draw.ellipse([x - 20, y - 20, x + 20, y + 20], 
                         outline=watermark_color, width=1)
+
+def add_coat_of_arms_watermark(draw, width, height, color):
+    """Add Zambian coat of arms watermark in center of card"""
+    center_x = width // 2
+    center_y = height // 2
+    
+    # Simplified coat of arms design
+    coat_width = 120
+    coat_height = 140
+    
+    # Shield outline
+    shield_points = [
+        (center_x - coat_width//2, center_y - coat_height//2),
+        (center_x + coat_width//2, center_y - coat_height//2),
+        (center_x + coat_width//2, center_y + coat_height//4),
+        (center_x, center_y + coat_height//2),
+        (center_x - coat_width//2, center_y + coat_height//4)
+    ]
+    draw.polygon(shield_points, outline=color, width=2)
+    
+    # Eagle at top (simplified)
+    eagle_y = center_y - coat_height//3
+    draw.ellipse([center_x - 15, eagle_y - 10, center_x + 15, eagle_y + 10], outline=color, width=1)
+    
+    # Wavy lines representing water (Victoria Falls)
+    for i in range(3):
+        y_pos = center_y - 10 + (i * 8)
+        for x in range(center_x - 40, center_x + 40, 8):
+            draw.arc([x, y_pos, x + 8, y_pos + 6], 0, 180, fill=color, width=1)
+    
+    # Corn and mining tools (simplified as crossed lines)
+    draw.line([center_x - 30, center_y + 10, center_x + 30, center_y + 30], fill=color, width=2)
+    draw.line([center_x + 30, center_y + 10, center_x - 30, center_y + 30], fill=color, width=2)
+    
+    # "WORK PROGRESS UNITY" banner (simplified)
+    banner_y = center_y + coat_height//3
+    draw.rectangle([center_x - 50, banner_y, center_x + 50, banner_y + 15], outline=color, width=1)
+    
+    try:
+        watermark_font = ImageFont.truetype("arial.ttf", 8)
+        draw.text((center_x - 35, banner_y + 3), "WORK PROGRESS UNITY", fill=color, font=watermark_font)
+    except:
+        pass

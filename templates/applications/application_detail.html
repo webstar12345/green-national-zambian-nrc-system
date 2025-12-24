@@ -25,14 +25,14 @@
     {% if application.status == 'approved' and application.nrc_front_image %}
     <!-- NRC Card Available Banner -->
     <div class="bg-gradient-to-r from-zambian-green to-green-600 text-white rounded-lg p-6 mb-6 shadow-lg">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div class="flex items-center">
-                <div class="bg-white rounded-full p-3 mr-4">
+                <div class="bg-white rounded-full p-3 mr-4 flex-shrink-0">
                     <i class="fas fa-id-card text-zambian-green text-3xl"></i>
                 </div>
                 <div>
-                    <h3 class="text-xl font-bold mb-1">Your NRC Card is Ready!</h3>
-                    <p class="text-sm opacity-90">NRC Number: {{ application.nrc_number }}</p>
+                    <h3 class="text-xl font-bold mb-1">🎉 Your NRC Card is Ready!</h3>
+                    <p class="text-sm opacity-90 font-semibold">NRC Number: {{ application.nrc_number }}</p>
                     {% if application.digital_signature %}
                         <p class="text-xs opacity-75"><i class="fas fa-signature mr-1"></i>Digital signature added</p>
                     {% else %}
@@ -40,16 +40,67 @@
                     {% endif %}
                 </div>
             </div>
+            
+            <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-3">
+                <a href="{% url 'applications:view_nrc_card' application.pk %}" 
+                   class="bg-white text-zambian-green px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors shadow-md text-center">
+                    <i class="fas fa-eye mr-2"></i>View NRC Card
+                </a>
                 <a href="{% url 'applications:signature_pad' application.pk %}" 
-                   class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-md text-center">
+                   class="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors shadow-md text-center">
                     <i class="fas fa-signature mr-2"></i>
                     {% if application.digital_signature %}Update{% else %}Add{% endif %} Signature
                 </a>
-                <a href="{% url 'applications:view_nrc_card' application.pk %}" 
-                   class="bg-white text-zambian-green px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors shadow-md text-center">
-                    <i class="fas fa-eye mr-2"></i>View NRC Card
+            </div>
+        </div>
+        
+        <!-- Download Section -->
+        <div class="mt-6 pt-4 border-t border-white border-opacity-30">
+            <h4 class="text-lg font-bold mb-3">
+                <i class="fas fa-download mr-2"></i>Download Your NRC Card
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <a href="{% url 'applications:download_nrc_front' application.pk %}" 
+                   class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-3 rounded-lg font-semibold transition-colors text-center backdrop-blur-sm">
+                    <i class="fas fa-id-card mr-2"></i>
+                    <div class="text-sm">Download</div>
+                    <div class="font-bold">Front Side</div>
                 </a>
+                <a href="{% url 'applications:download_nrc_back' application.pk %}" 
+                   class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-3 rounded-lg font-semibold transition-colors text-center backdrop-blur-sm">
+                    <i class="fas fa-id-card-alt mr-2"></i>
+                    <div class="text-sm">Download</div>
+                    <div class="font-bold">Back Side</div>
+                </a>
+                <a href="{% url 'applications:download_nrc_both' application.pk %}" 
+                   class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-3 rounded-lg font-bold transition-colors text-center shadow-lg">
+                    <i class="fas fa-file-archive mr-2"></i>
+                    <div class="text-sm">Download</div>
+                    <div class="font-bold">Both Sides (ZIP)</div>
+                </a>
+            </div>
+            <p class="text-xs opacity-75 mt-3 text-center">
+                <i class="fas fa-info-circle mr-1"></i>
+                Download individual sides as PNG images or both sides as a ZIP file
+            </p>
+        </div>
+    </div>
+    
+    {% elif application.status == 'approved' and not application.nrc_front_image %}
+    <!-- Approved but NRC not generated -->
+    <div class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-lg p-6 mb-6 shadow-lg">
+        <div class="flex items-center">
+            <div class="bg-white rounded-full p-3 mr-4">
+                <i class="fas fa-clock text-yellow-500 text-3xl"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold mb-1">Application Approved!</h3>
+                <p class="text-sm opacity-90">Your NRC card is being generated...</p>
+                <p class="text-xs opacity-75 mt-1">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    You will receive a notification when your NRC card is ready for download
+                </p>
             </div>
         </div>
     </div>
@@ -188,36 +239,57 @@
                     <i class="fas fa-file-alt text-zambian-black mr-2"></i>Documents
                 </h2>
                 <div class="space-y-3">
+                    <!-- Birth Certificate -->
                     <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div class="flex items-center">
                             <i class="fas fa-file-pdf text-red-500 mr-2"></i>
                             <span class="text-sm font-medium">Birth Certificate</span>
                         </div>
-                        <a href="{{ application.birth_certificate.url }}" target="_blank" 
-                           class="text-zambian-green hover:text-green-700 text-sm">
-                            <i class="fas fa-download mr-1"></i>View
-                        </a>
+                        {% if application.birth_certificate %}
+                            <a href="{{ application.birth_certificate.url }}" target="_blank" 
+                               class="text-zambian-green hover:text-green-700 text-sm">
+                                <i class="fas fa-download mr-1"></i>View
+                            </a>
+                        {% else %}
+                            <span class="text-gray-400 text-sm">
+                                <i class="fas fa-times mr-1"></i>Not uploaded
+                            </span>
+                        {% endif %}
                     </div>
+                    
+                    <!-- Under Five Card -->
                     <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div class="flex items-center">
                             <i class="fas fa-file-pdf text-red-500 mr-2"></i>
                             <span class="text-sm font-medium">Under Five Card</span>
                         </div>
-                        <a href="{{ application.under_five_card.url }}" target="_blank" 
-                           class="text-zambian-green hover:text-green-700 text-sm">
-                            <i class="fas fa-download mr-1"></i>View
-                        </a>
+                        {% if application.under_five_card %}
+                            <a href="{{ application.under_five_card.url }}" target="_blank" 
+                               class="text-zambian-green hover:text-green-700 text-sm">
+                                <i class="fas fa-download mr-1"></i>View
+                            </a>
+                        {% else %}
+                            <span class="text-gray-400 text-sm">
+                                <i class="fas fa-times mr-1"></i>Not uploaded
+                            </span>
+                        {% endif %}
                     </div>
-                    {% if application.old_nrc %}
+                    
+                    <!-- Old NRC (for replacement applications) -->
+                    {% if application.application_type == 'replacement' %}
                     <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div class="flex items-center">
                             <i class="fas fa-file-pdf text-red-500 mr-2"></i>
                             <span class="text-sm font-medium">Old NRC</span>
                         </div>
-                        <a href="{{ application.old_nrc.url }}" target="_blank" 
-                           class="text-zambian-green hover:text-green-700 text-sm">
-                            <i class="fas fa-download mr-1"></i>View
-                        </a>
+                        {% if application.old_nrc %}
+                            <a href="{{ application.old_nrc.url }}" target="_blank" 
+                               class="text-zambian-green hover:text-green-700 text-sm">
+                                <i class="fas fa-download mr-1"></i>View
+                            </a>
+                        {% else %}
+                            <span class="text-sm text-gray-500">No file uploaded</span>
+                        {% endif %}
                     </div>
                     {% endif %}
                 </div>

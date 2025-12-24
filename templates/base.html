@@ -116,6 +116,10 @@
                         <a href="{% url 'applications:my_applications' %}" class="text-white hover:text-zambian-orange transition-colors">
                             <i class="fas fa-list mr-1"></i> My Applications
                         </a>
+                        <a href="{% url 'applications:notifications' %}" class="text-white hover:text-zambian-orange transition-colors relative">
+                            <i class="fas fa-bell mr-1"></i> Notifications
+                            <span id="notification-badge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                        </a>
                         {% if user.is_staff %}
                             <a href="{% url 'applications:admin_dashboard' %}" class="text-white hover:text-zambian-orange transition-colors">
                                 <i class="fas fa-tachometer-alt mr-1"></i> Admin
@@ -181,6 +185,10 @@
                         </a>
                         <a href="{% url 'applications:my_applications' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md">
                             <i class="fas fa-list mr-2"></i> My Applications
+                        </a>
+                        <a href="{% url 'applications:notifications' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md relative">
+                            <i class="fas fa-bell mr-2"></i> Notifications
+                            <span id="mobile-notification-badge" class="absolute top-1 left-8 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center hidden">0</span>
                         </a>
                         {% if user.is_staff %}
                             <a href="{% url 'applications:admin_dashboard' %}" class="text-white hover:bg-green-700 px-3 py-2 rounded-md">
@@ -327,6 +335,38 @@
     
     <!-- PWA Installation Script -->
     <script src="{% static 'js/pwa-install.js' %}"></script>
+    
+    <!-- Notification System -->
+    {% if user.is_authenticated %}
+    <script>
+        // Update notification count
+        function updateNotificationCount() {
+            fetch('{% url "applications:notification_count" %}')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('notification-badge');
+                    const mobileBadge = document.getElementById('mobile-notification-badge');
+                    
+                    if (data.unread_count > 0) {
+                        badge.textContent = data.unread_count;
+                        badge.classList.remove('hidden');
+                        mobileBadge.textContent = data.unread_count;
+                        mobileBadge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                        mobileBadge.classList.add('hidden');
+                    }
+                })
+                .catch(error => console.log('Error fetching notification count:', error));
+        }
+        
+        // Update count on page load
+        document.addEventListener('DOMContentLoaded', updateNotificationCount);
+        
+        // Update count every 30 seconds
+        setInterval(updateNotificationCount, 30000);
+    </script>
+    {% endif %}
 </body>
 </html>
 
